@@ -11,6 +11,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+<!-- Load the Chatbot Widget -->
+<script src="/widget.js" defer></script>
+
 <style>
   :root {
     /* Dr. Rajeev Bedi Color Theme */
@@ -213,6 +216,20 @@
     box-shadow: 0 -4px 16px rgba(0,0,0,.08); z-index: 999;
   }
   .mobile-sticky-bar .btn { width: 100%; font-size: 16px; padding: 13px; }
+
+  /* Chat Widget Full Screen Override for Mobile */
+  @media (max-width: 760px) {
+    #bediw #bedi-panel {
+      bottom: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      border-radius: 0 !important;
+      z-index: 2147483005 !important;
+    }
+  }
 
   /* Responsive Adjustments */
   @media (max-width: 900px) {
@@ -541,7 +558,7 @@
   document.getElementById("toStep2").addEventListener("click", function () { goStep(2); });
   document.getElementById("toStep1").addEventListener("click", function () { goStep(1); });
 
-  /* Form Handling & WhatsApp/Chatbot Handoff */
+  /* Form Handling & Seamless Chatbot Widget Handoff */
   document.getElementById("leadForm").addEventListener("submit", function(e) {
     e.preventDefault();
     
@@ -550,21 +567,48 @@
     const treatment = selectedTreatmentInput.value;
     const query = document.getElementById("query").value.trim();
     
-    // WHATSAPP BOT NUMBER (with country code, no + or spaces)
-    const whatsappBotNumber = "917272872728"; 
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = 'Connecting to Assistant... <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    submitBtn.disabled = true;
+
+    // 1. Programmatically open the Chat Widget
+    const widgetBtn = document.getElementById("bedi-btn");
+    const widgetPanel = document.getElementById("bedi-panel");
     
-    let textMessage = `Hello, I would like to book an OPD consultation with Dr. Rajeev Bedi.\n\n`;
-    textMessage += `*Patient Name:* ${name}\n`;
-    textMessage += `*Mobile:* ${mobile}\n`;
-    textMessage += `*Consultation Type:* ${treatment}\n`;
-    if (query) {
-      textMessage += `*Query:* ${query}\n`;
+    if(widgetBtn && widgetPanel) {
+      if(!widgetPanel.classList.contains("on")) {
+          widgetBtn.click();
+      }
+    } else {
+      alert("The assistant is still loading. Please wait a moment and try again.");
+      submitBtn.disabled = false;
+      return;
     }
-    
-    const waUrl = `https://wa.me/${whatsappBotNumber}?text=${encodeURIComponent(textMessage)}`;
-    
-    // Redirect to WhatsApp
-    window.location.href = waUrl;
+
+    // 2. Pass the data into the widget's internal form and submit it automatically
+    setTimeout(function() {
+      const wName = document.getElementById("in-name");
+      const wPhone = document.getElementById("in-phone");
+      const wMsg = document.getElementById("in-msg");
+      const wSend = document.getElementById("in-send");
+
+      if(wName && wPhone && wMsg && wSend) {
+          wName.value = name;
+          wPhone.value = mobile;
+          
+          let compiledMessage = `Hello, I need a consultation regarding ${treatment}.`;
+          if (query) { compiledMessage += ` Additional details: ${query}`; }
+          
+          wMsg.value = compiledMessage;
+          
+          // Trigger the chat
+          wSend.click(); 
+          
+          // Reset the landing page button in the background
+          submitBtn.innerHTML = 'Submit & Start Chat Assistant <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+          submitBtn.disabled = false;
+      }
+    }, 250); // Small delay ensures the widget DOM is fully rendered before injecting data
   });
 
   /* Auto-update Year */
