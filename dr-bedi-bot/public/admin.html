@@ -1,0 +1,982 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<title>Dr. Bedi — OPD Staff Inbox</title>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0A4D4A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Bedi Inbox"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<style>
+:root{--teal:#0A4D4A;--tealDeep:#063432;--coral:#FF6B35;--coralDeep:#E85724;--ink:#0A4D4A;--paper:#FFFFFF;--mint:#E6F5EE;--line:#E2E8E6;--muted:#596D6C;--bg:#F8FAF9;--green:#22A06B;--amber:#E85724}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+button,input{font:inherit}
+a{color:var(--teal)}
+
+/* gate */
+#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 50% -10%,#E6F5EE,#F8FAF9);z-index:50;padding:20px}
+.gx{background:#fff;border:1px solid var(--line);border-radius:20px;max-width:380px;width:100%;padding:30px;text-align:center;box-shadow:0 24px 60px rgba(10,77,74,.12)}
+.gx .sp{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--teal),var(--tealDeep));display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px}
+.gx h2{margin:0 0 4px;font-size:20px}.gx p{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+.gx input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;outline:none;margin-bottom:10px;font-size:15px}
+.gx button{width:100%;padding:12px;border:none;border-radius:11px;background:var(--coral);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+.gerr{color:var(--coralDeep);font-size:12.5px;min-height:16px;margin-bottom:6px}
+
+/* top bar */
+.bar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(135deg,var(--tealDeep),var(--teal));color:#fff;flex-shrink:0}
+.bar .logo{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+.bar .stats{margin-left:auto;display:flex;gap:8px}
+.bar .stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px 12px;text-align:center;min-width:64px}
+.bar .stat b{display:block;font-size:17px;line-height:1}.bar .stat span{font-size:10.5px;color:#E6F5EE}
+.bar .clock{font-size:11.5px;opacity:.8;margin-left:6px}
+.bar .bell{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);color:#fff;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;margin-left:10px;white-space:nowrap}
+.bar .bell.on2{background:rgba(255,255,255,.3)}
+@media(max-width:720px){.bar .stat span{display:none}.bar .stat{min-width:0;padding:5px 9px}.bar .clock{display:none}.bar .bell{padding:6px 9px;font-size:11px}}
+
+/* tabs */
+.tabs{display:flex;gap:4px;padding:8px 14px 0;background:var(--paper);border-bottom:1px solid var(--line);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:9px 16px;border:none;background:none;cursor:pointer;font-weight:600;font-size:13.5px;color:var(--muted);border-bottom:2px solid transparent;flex-shrink:0;white-space:nowrap}
+.tab.on{color:var(--teal);border-bottom-color:var(--coral)}
+.tab .pip{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;background:var(--coral);color:#fff;border-radius:20px;font-size:11px;font-weight:700}
+
+/* conversations split */
+#convTab{flex:1;display:flex;min-height:0}
+.list{width:330px;border-right:1px solid var(--line);background:var(--paper);flex-shrink:0;display:flex;flex-direction:column}
+.convitems{flex:1;overflow-y:auto}
+.citem{padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.citem:hover{background:var(--mint)}
+.citem.sel{background:#FFF3EB;box-shadow:inset 3px 0 0 var(--coral)}
+.citem .ava{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#E85724,var(--tealDeep));color:#fff;font-weight:700;font-size:12px}
+.citem .mid{flex:1;min-width:0}
+.citem .nm{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px}
+.citem .pv{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citem .rt{font-size:10.5px;color:var(--muted);flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--coral);flex-shrink:0}
+.bdg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.b-ai{background:#E6F5EE;color:var(--green)}.b-h{background:#FFF3EB;color:var(--coralDeep)}
+.empty{padding:30px 20px;text-align:center;color:var(--muted);font-size:13px}
+
+.detail{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+.dhead{padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.dhead .back{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink)}
+.dhead .who{font-weight:700;font-size:14px}
+.dhead .sub{font-size:11.5px;color:var(--muted)}
+.dhead .hb{margin-left:auto;background:var(--mint);color:var(--teal);border:1px solid var(--line);border-radius:9px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:700}
+.tr{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:9px}
+.m{max-width:78%;padding:9px 12px;font-size:13.5px;line-height:1.45;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}
+.m.user{align-self:flex-end;background:var(--teal);color:#fff;border-bottom-right-radius:4px}
+.m.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.m.team{align-self:flex-end;background:#FFF3EB;border:1px solid #FFE2D1;border-bottom-right-radius:4px}
+.m.sys{align-self:center;background:#F0F4F3;color:var(--muted);font-size:11px;border-radius:20px;padding:4px 11px}
+.m .lab{font-size:10px;font-weight:700;opacity:.7;margin-bottom:2px}
+.replybar{padding:12px;border-top:1px solid var(--line);background:var(--paper);display:flex;gap:8px;flex-shrink:0}
+.replybar input{flex:1;padding:11px 14px;border:1px solid var(--line);border-radius:22px;outline:none;font-size:14px;background:#fff}
+.replybar .send{width:44px;height:44px;border:none;border-radius:50%;background:var(--coral);color:#fff;cursor:pointer;font-size:18px;flex-shrink:0}
+.nodetail{flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;text-align:center;padding:20px}
+
+/* bookings & reports filters */
+.filter-date { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 13px; outline: none; background: #fff; color: var(--ink); }
+.p-context { background: #F8FAFB; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 12.5px; display: flex; flex-direction: column; flex-shrink: 0; }
+.p-context .ctx-row { display: flex; gap: 16px; align-items: center; }
+.p-context-title { font-weight: 700; color: var(--tealDeep); opacity: 0.9; }
+
+/* bookings */
+#bookTab{flex:1;overflow-y:auto;padding:18px;display:none}
+.tablewrap{max-width:1000px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--line)}
+th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#F8FAF9}
+tr:last-child td{border-bottom:none}
+.tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;background:#FFF3EB;color:var(--coralDeep)}
+select{padding:5px 9px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff}
+.ltop{max-width:1000px;margin:0 auto 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ltitle{font-weight:700;font-size:14px;color:var(--ink)}
+.exp{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.exp:hover{background:var(--tealDeep)}.exp:disabled{opacity:.5;cursor:default}
+
+@media(max-width:760px){
+  .list{width:100%}
+  #convTab .detail{display:none}
+  #convTab.show-detail .list{display:none}
+  #convTab.show-detail .detail{display:flex;width:100%}
+  .dhead .back{display:block}
+}
+
+/* contacts / reports / reviews */
+#contactsTab,#reportsTab,#reviewsTab{flex:1;overflow-y:auto;padding:18px;display:none}
+.wrap{max-width:1000px;margin:0 auto}
+.sec-h{font-weight:700;font-size:14px;color:var(--ink);margin:0 0 10px}
+.searchbar{max-width:1000px;margin:0 auto 14px}
+.searchbar input{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:11px;outline:none;font-size:14px;background:#fff}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card .ch{display:flex;align-items:flex-start;gap:10px}
+.card .ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#E85724,var(--tealDeep));color:#fff;font-weight:700;font-size:13px}
+.card .cn{font-weight:700;font-size:14px}
+.card .cc{font-size:12.5px;color:var(--muted);margin-top:1px;word-break:break-word}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.chip2{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--mint);color:var(--tealDeep)}
+.chip2.cb{background:#FFF3EB;color:var(--coralDeep)}
+.card textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;resize:vertical;min-height:44px;outline:none;background:#fff;font-family:inherit}
+.card .crow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.btn{border:none;border-radius:9px;padding:8px 12px;font-weight:700;font-size:12.5px;cursor:pointer;background:var(--teal);color:#fff}
+.btn:hover{background:var(--tealDeep)}.btn.ghost{background:var(--mint);color:var(--tealDeep)}.btn:disabled{opacity:.5;cursor:default}
+.ok{color:var(--green);font-size:12px;font-weight:700}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:18px}
+.scard{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.scard b{display:block;font-size:26px;line-height:1;color:var(--teal)}
+.scard span{font-size:12px;color:var(--muted);margin-top:4px;display:block}
+.panel2{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:10px}
+.bar2{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bar2 .fill{width:100%;max-width:34px;background:linear-gradient(180deg,var(--teal),var(--tealDeep));border-radius:6px 6px 0 0;min-height:3px}
+.bar2 .bl{font-size:10.5px;color:var(--muted)}.bar2 .bv{font-size:11px;font-weight:700;color:var(--ink)}
+.svc-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+.svc-row .snm{width:150px;flex-shrink:0;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc-row .track{flex:1;background:var(--mint);border-radius:20px;height:10px;overflow:hidden}
+.svc-row .tk{height:100%;background:var(--teal);border-radius:20px}
+.svc-row .ct{width:28px;text-align:right;color:var(--muted);font-size:12px}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.formrow input{flex:1;min-width:150px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;outline:none;font-size:14px;background:#fff}
+.hint{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+.rr-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.rr-item:last-child{border:none}
+
+/* --- v2: search, segments, quick replies, dark mode, polish --- */
+html[data-theme="dark"]{--ink:#E2E8E6;--paper:#061614;--mint:#052422;--line:#103835;--muted:#8A9A98;--bg:#020D0C;--coral:#FF6B35}
+html[data-theme="dark"] .m.bot{background:#061C1A;border-color:#103835;color:var(--ink)}
+html[data-theme="dark"] .replybar input,html[data-theme="dark"] input,html[data-theme="dark"] textarea,html[data-theme="dark"] select{background:#061C1A;color:var(--ink)}
+html[data-theme="dark"] .citem.sel{background:#103835}
+html[data-theme="dark"] .m.team{background:#1C140D;border-color:#3A2C20;color:var(--ink)}
+html[data-theme="dark"] .qrpop,html[data-theme="dark"] .card,html[data-theme="dark"] .panel2,html[data-theme="dark"] .m.sys{background:var(--paper)}
+html[data-theme="dark"] .filter-date { background: #061C1A; color: var(--ink); border-color: #103835; }
+html[data-theme="dark"] .p-context { background: #0A1B1A; border-color: #103835; }
+html[data-theme="dark"] .p-context-title { color: var(--coral); }
+
+.iconbtn{background:rgba(255,255,255,.18);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:15px;flex-shrink:0}
+.iconbtn:hover{background:rgba(255,255,255,.3)}
+.convtools{padding:9px 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px;flex-shrink:0;background:var(--paper)}
+.convtools input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;outline:none;font-size:13px;background:var(--bg);color:var(--ink)}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:7px;border:1px solid var(--line);background:var(--bg);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--coral);color:#fff;border-color:var(--coral)}
+.citem.unread .nm{font-weight:800}
+.citem.unread{background:rgba(255,107,53,.06)}
+.qrwrap{position:relative}
+.qr{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:var(--mint);color:var(--coral);cursor:pointer;font-size:18px;flex-shrink:0}
+.qrpop{position:absolute;bottom:54px;left:0;width:285px;max-height:265px;overflow-y:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:6px;z-index:20}
+.qrpop .qi{padding:9px 11px;font-size:12.5px;color:var(--ink);border-radius:8px;cursor:pointer;line-height:1.4}
+.qrpop .qi:hover{background:var(--mint)}
+.rsv{margin-left:8px;background:var(--paper);color:var(--green);border:1px solid var(--line);border-radius:9px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700}
+.empty2{padding:46px 22px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.6}
+.empty2 .ico{font-size:34px;display:block;margin-bottom:8px;opacity:.75}
+.m{animation:slidein .18s ease}
+@keyframes slidein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cl-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--mint);color:var(--muted)}
+input,textarea,select{font-size:16px !important}  /* iOS zoom fix */
+
+/* ===== v3 — Redesign ===== */
+:root{--radius:18px;--soft:0 6px 20px rgba(10,77,74,.05);--soft2:0 12px 30px rgba(10,77,74,.10)}
+body{background:radial-gradient(1100px 560px at 50% -220px,#E6F5EE,#F8FAF9)}
+.bar{background:linear-gradient(120deg,var(--teal),var(--tealDeep));padding:15px 20px;box-shadow:0 8px 26px rgba(10,77,74,.15);position:relative;z-index:5}
+.bar .logo{font-size:15.5px;letter-spacing:.2px}
+.bar .stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.20);border-radius:15px;padding:7px 14px}
+.bar{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap}
+.bar::-webkit-scrollbar{display:none}
+.bar .logo{white-space:nowrap;flex-shrink:0}
+.bar .stats{flex-shrink:0}
+.bar .stat{flex-shrink:0}
+.bar .bell,.bar .iconbtn,.bar #logoutBtn{flex-shrink:0;white-space:nowrap}
+@media(max-width:720px){
+  .bar{padding:11px 14px;gap:9px}
+  .bar .logo{font-size:13.5px}
+  .bar .logo .full{display:none}
+  .bar .stat span{display:block;font-size:9px;color:#E6F5EE;margin-top:2px}
+  .bar .stat{min-width:0;padding:5px 9px}
+  .bar .stat b{font-size:16px}
+  .bar .bell{padding:7px 11px;font-size:11.5px}
+}
+.bar .stat b{font-size:18px;font-weight:800}
+.bar .bell{border-radius:22px;padding:8px 15px}
+.bar .iconbtn{border-radius:12px;width:36px;height:36px}
+.tabs{gap:6px;padding:11px 14px;background:var(--paper);box-shadow:0 3px 14px rgba(10,77,74,.04);border-bottom:none}
+.tab{border-radius:13px;padding:9px 15px}
+.tab.on{background:var(--mint);color:var(--tealDeep);border-bottom-color:transparent}
+.convitems{padding:9px}
+.citem{border-bottom:none;border-radius:16px;margin-bottom:9px;padding:12px 13px;background:var(--paper);border:1px solid transparent;box-shadow:var(--soft);transition:transform .12s,box-shadow .12s}
+.citem:hover{transform:translateY(-1px);box-shadow:var(--soft2)}
+.citem.sel{background:#F0F4F3;border-color:#E2E8E6;box-shadow:none}
+.citem.unread{background:#FFF3EB;border-color:#FFE2D1}
+.citem .ava{width:40px;height:40px;font-size:13px;box-shadow:0 3px 9px rgba(10,77,74,.15)}
+.list{background:transparent}
+.convtools{background:transparent}
+.card,.scard,.panel2,.tablewrap{border-radius:var(--radius);box-shadow:var(--soft);border-color:var(--line)}
+.card{transition:box-shadow .12s,transform .12s}.card:hover{box-shadow:var(--soft2);transform:translateY(-1px)}
+.scard b{font-size:28px}
+.btn,.exp{border-radius:12px}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
+.replybar input{border-radius:24px}
+.m{border-radius:16px}
+th{background:#F8FAF9;letter-spacing:.05em}
+td,th{padding:14px 16px}
+/* status pills */
+.spill{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer;margin:2px 5px 2px 0}
+.spill.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.spill.on[data-st="Contacted"]{background:#E85724;border-color:#E85724}
+.spill.on[data-st="Booked"]{background:#22A06B;border-color:#22A06B}
+.pillcell{white-space:nowrap}.txtlink{text-decoration:none}
+/* bookings filters */
+.filterbar{max-width:1000px;margin:0 auto 12px;display:flex;gap:8px;flex-wrap:wrap}
+.filterbar select{border-radius:10px;padding:8px 12px}
+.exp.danger{background:#F8E7E1;color:#B23B1E;border-color:#F0C9BD}
+.del{background:transparent;border:none;cursor:pointer;font-size:15px;opacity:.5;padding:4px 7px;border-radius:8px;line-height:1}
+.del:hover{opacity:1;background:#F8E7E1}
+.cdel{margin-left:auto}
+.tablewrap{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+.tablewrap table{min-width:660px}
+.pagination{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--paper);border-top:1px solid var(--line);font-size:13.5px}
+.pagination .btn{padding:6px 12px;font-size:13px}
+.c-pag{max-width:1000px;margin:16px auto 0;border-radius:14px;border:1px solid var(--line);overflow:hidden}
+#settingsTab{flex:1;overflow-y:auto;padding:18px;display:none}
+#settingsTab textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-family:inherit;resize:vertical;background:#fff;outline:none;margin-bottom:8px}
+
+/* dark-mode harmony */
+html[data-theme="dark"] .citem{background:var(--paper);box-shadow:none;border-color:#103835}
+html[data-theme="dark"] .citem.sel{background:#0A1B1A;border-color:#1B3D3B}
+html[data-theme="dark"] .citem.unread{background:#15110E;border-color:#2E2118}
+html[data-theme="dark"] .tab.on{background:#0A1B1A;color:var(--coral)}
+html[data-theme="dark"] #settingsTab textarea{background:#061C1A;color:var(--ink)}
+</style></head>
+<body>
+
+<div id="gate"><div class="gx">
+  <div class="sp"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E6F5EE" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
+  <h2>OPD Staff Inbox</h2>
+  <p>Enter the admin password (your <code>ADMIN_TOKEN</code>).</p>
+  <div class="gerr" id="gerr"></div>
+  <input id="tok" type="password" placeholder="Admin password" autocomplete="current-password"/>
+  <button id="enter">Open inbox</button>
+</div></div>
+
+<div id="app" style="display:none;flex:1;flex-direction:column;min-height:0">
+  <div class="bar">
+    <div class="logo">🏥 Dr. Bedi OPD<span class="full"> — Staff Inbox</span></div>
+    <div class="stats">
+      <div class="stat"><b id="s-live">0</b><span>Active</span></div>
+      <div class="stat"><b id="s-new">0</b><span>New</span></div>
+      <div class="stat"><b id="s-cb">0</b><span>Callbacks</span></div>
+    </div>
+    <button class="iconbtn" id="themeBtn" title="Toggle dark mode">🌙</button>
+    <button class="bell" id="bellBtn">🔔 Enable alerts</button>
+    <button class="iconbtn" id="logoutBtn" title="Log out" style="width:auto;padding:0 12px;font-weight:600">Log out</button>
+    <span class="clock" id="clock"></span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tabConv">💬 Conversations <span class="pip" id="convUnread" style="display:none">0</span></button>
+    <button class="tab" id="tabBook">📥 Consultations <span class="pip" id="bookCount">0</span></button>
+    <button class="tab" id="tabCont">👥 Patients</button>
+    <button class="tab" id="tabRep">📊 Reports</button>
+    <button class="tab" id="tabRev">⭐ Reviews</button>
+    <button class="tab" id="tabSet">⚙️ Settings</button>
+  </div>
+
+  <div id="convTab">
+    <div class="list">
+      <div class="convtools">
+        <input id="convSearch" placeholder="🔍 Search chats by name or message…" autocomplete="off"/>
+        <div class="seg" id="ocSeg"><button data-oc="open" class="on">Open</button><button data-oc="closed">Closed</button></div>
+      </div>
+      <div class="convitems" id="convList"></div>
+    </div>
+    <div class="detail">
+      <div id="detailInner" class="nodetail">Select a conversation on the left to read it and reply.</div>
+    </div>
+  </div>
+
+  <div id="bookTab">
+    <div class="ltop"><div class="ltitle">Consultations &amp; Callbacks</div><div style="display:flex;gap:8px"><button id="exportBtn" class="exp">⬇ Export CSV</button><button id="clearBtn" class="exp danger">🗑 Delete all</button></div></div>
+    <div class="filterbar" id="leadFilters">
+      <select id="fType"><option value="">All types</option><option>Booking</option><option>Callback</option><option>Enquiry</option></select>
+      <select id="fStatus"><option value="">All statuses</option><option>New</option><option>Contacted</option><option>Booked</option></select>
+      <select id="fSort"><option value="new">Newest first</option><option value="old">Oldest first</option></select>
+      <input type="date" id="fDateStart" class="filter-date" title="Start date">
+      <input type="date" id="fDateEnd" class="filter-date" title="End date">
+    </div>
+    <div class="tablewrap" id="leadsWrapper"><div id="leadsBox"></div></div>
+  </div>
+
+  <div id="contactsTab">
+    <div class="searchbar" style="display:flex;gap:8px;align-items:center"><input id="contactSearch" placeholder="🔍 Search patients by name, mobile or email…"/><button id="clearContactsBtn" class="exp danger" style="white-space:nowrap">🗑 Delete all</button></div>
+    <div class="wrap"><div class="cgrid" id="contactsBox"></div><div id="contactsPagBox" class="c-pag"></div></div>
+  </div>
+
+  <div id="reportsTab">
+    <div class="wrap">
+      <div class="filterbar" style="margin-bottom:14px">
+        <input type="date" id="repDateStart" class="filter-date" title="Start date">
+        <input type="date" id="repDateEnd" class="filter-date" title="End date">
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="panel2"><div class="sec-h">Busiest days (all chats)</div><div class="bars" id="dowBars"></div></div>
+      <div class="panel2"><div class="sec-h">Top consultation reasons</div><div id="svcList"></div></div>
+    </div>
+  </div>
+
+  <div id="reviewsTab">
+    <div class="wrap">
+      <div class="panel2">
+        <div class="sec-h">Your Google review link</div>
+        <div class="formrow"><input id="reviewLink" placeholder="Paste your Google ‘write a review’ link…"/><button class="btn" id="saveLink">Save</button></div>
+        <p class="hint">This is the link patients tap to leave a Google review. In Google Business Profile → <b>Ask for reviews</b> → copy the short link. <span id="linkState"></span></p>
+      </div>
+      <div class="panel2">
+        <div class="sec-h">Send a review request</div>
+        <div class="formrow"><input id="rrName" placeholder="Patient name (optional)"/><input id="rrEmail" placeholder="Patient email"/><button class="btn" id="rrSend">📧 Send</button></div>
+        <p class="hint" id="rrHint">Emails your Google review link straight to the patient from the clinic’s email. Set your review link below first.</p>
+      </div>
+      <div class="panel2"><div class="sec-h">Recently requested</div><div id="rrList"></div></div>
+    </div>
+  </div>
+
+  <div id="settingsTab">
+    <div class="wrap">
+      <div class="panel2">
+        <div class="sec-h">Chat greeting</div>
+        <textarea id="setGreeting" rows="2" placeholder="e.g. Hello {name}! How can we assist you today?"></textarea>
+        <p class="hint">The first thing the Assistant says after someone fills the intake form. Use <code>{name}</code> to drop in their first name. <span id="setGreetState"></span></p>
+        <button class="btn" id="saveGreeting">Save greeting</button>
+      </div>
+      <div class="panel2">
+        <div class="sec-h">Notification email</div>
+        <div class="formrow"><input id="setEmail" placeholder="where new bookings are emailed"/><button class="btn" id="saveEmail">Save</button></div>
+        <p class="hint">New consultations, callbacks and enquiries are emailed here. <span id="setEmailState"></span></p>
+      </div>
+      <div class="panel2">
+        <div class="sec-h">Auto-resume timer</div>
+        <div class="formrow"><input id="setResume" type="number" min="0" max="240" placeholder="5" style="max-width:120px"/><span class="hint" style="margin:0;align-self:center;flex:1;min-width:180px">minutes before Assistant takes a chat back after reception stops replying</span><button class="btn" id="saveResume">Save</button></div>
+        <p class="hint"><span id="setResumeState"></span></p>
+      </div>
+      <div class="panel2">
+        <div class="sec-h">Google review link</div>
+        <div class="formrow"><input id="setReviewLink" placeholder="Paste your Google 'write a review' link…"/><button class="btn" id="saveReviewLink">Save</button></div>
+        <p class="hint">Also editable in the Reviews tab. <span id="setReviewState"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var TOK = localStorage.getItem("bedi_admin_tok") || "";
+var DATA = { sessions: [], leads: [] };
+var selectedId = null, detailCount = 0, leadSig = "", tab = "conv";
+var lastSeen = {}; try{ lastSeen=JSON.parse(localStorage.getItem("bedi_seen")||"{}"); }catch(e){}
+function saveSeen(){ try{ localStorage.setItem("bedi_seen",JSON.stringify(lastSeen)); }catch(e){} }
+var ocFilter="open", convQuery="", maxUserTs=0, soundReady=false, actx=null;
+var fType="", fStatus="", fSort="new";
+var currentLeadPage=1, leadsPerPage=15;
+var currentContactPage=1, contactsPerPage=12;
+var lastFilterSig="", lastContQ="";
+
+/* Dr Bedi OPD Quick Replies */
+var QUICK = [
+  "Dr. Bedi's OPD is open Mon-Sat. What time suits you best?",
+  "Could you please call our OPD helpline at 72728 72728 so we can lock in a time?",
+  "Yes, we can definitely help with that. Are you looking for a second opinion?",
+  "Thanks for reaching out — our OPD coordinator will be with you shortly.",
+  "We are located at Fortis Cancer Institute, Sector 62, Mohali.",
+  "Great news — your consultation is confirmed. See you then! ✅"
+];
+
+function g(id){ return document.getElementById(id); }
+function esc(s) { 
+  return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+}
+function hdr(){ return { "Content-Type":"application/json", "x-admin-token": TOK }; }
+function ago(ts){ var s=Math.floor((Date.now()-ts)/1000); if(s<60)return"now"; var m=Math.floor(s/60); if(m<60)return m+"m"; var h=Math.floor(m/60); if(h<24)return h+"h"; return Math.floor(h/24)+"d"; }
+function mmss(ms){ var t=Math.max(0,Math.ceil(ms/1000)); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
+function last(s){ for(var i=s.messages.length-1;i>=0;i--){ if(s.messages[i].role!=="system") return s.messages[i]; } return s.messages[s.messages.length-1]||{text:""}; }
+
+g("enter").onclick=function(){ TOK=g("tok").value.trim(); start(); };
+g("tok").addEventListener("keydown",function(e){ if(e.key==="Enter"){ TOK=this.value.trim(); start(); } });
+if(TOK) start();
+
+function applyTheme(t){ document.documentElement.setAttribute("data-theme",t); try{localStorage.setItem("bedi_theme",t);}catch(e){} var b=g("themeBtn"); if(b) b.textContent= t==="dark"?"\u2600\ufe0f":"\ud83c\udf19"; }
+applyTheme(localStorage.getItem("bedi_theme")||"light");
+g("themeBtn").onclick=function(){ applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"); };
+g("convSearch").addEventListener("input",function(){ convQuery=this.value; renderList(activeSessions()); });
+g("ocSeg").querySelectorAll("[data-oc]").forEach(function(b){ b.onclick=function(){ ocFilter=b.getAttribute("data-oc"); g("ocSeg").querySelectorAll("[data-oc]").forEach(function(x){x.className="";}); b.className="on"; selectedId=null; g("convTab").classList.remove("show-detail"); renderList(activeSessions()); }; });
+document.addEventListener("click",function(e){ var p=g("qrpop"); if(p && !e.target.closest(".qrwrap")) p.remove(); });
+
+async function start(){
+  try{
+    var r=await fetch("/api/admin/data",{headers:hdr()});
+    if(r.status===401){ g("gerr").textContent="Wrong password — try again."; return; }
+    localStorage.setItem("bedi_admin_tok",TOK);
+    g("gate").style.display="none"; g("app").style.display="flex";
+    tick(); setInterval(tick,1000);
+    await refresh(); setInterval(refresh,4000);
+    initPush();
+  }catch(e){ g("gerr").textContent="Couldn't reach the server."; }
+}
+function tick(){ g("clock").textContent=new Date().toLocaleTimeString(); }
+
+var TABS = {
+  conv: { btn:"tabConv", el:"convTab",     disp:"flex"  },
+  book: { btn:"tabBook", el:"bookTab",     disp:"block", on:function(){ renderLeads(true); } },
+  cont: { btn:"tabCont", el:"contactsTab", disp:"block", on:function(){ renderContacts(true); } },
+  rep:  { btn:"tabRep",  el:"reportsTab",  disp:"block", on:function(){ renderReports(); } },
+  rev:  { btn:"tabRev",  el:"reviewsTab",  disp:"block", on:function(){ renderReviews(true); } },
+  set:  { btn:"tabSet",  el:"settingsTab", disp:"block", on:function(){ renderSettings(); } },
+};
+function showTab(name){
+  tab=name;
+  for(var k in TABS){ var T=TABS[k]; g(T.btn).classList.toggle("on",k===name); g(T.el).style.display=(k===name?T.disp:"none"); }
+  if(TABS[name].on) TABS[name].on();
+}
+Object.keys(TABS).forEach(function(k){ g(TABS[k].btn).onclick=function(){ showTab(k); }; });
+
+async function refresh(){
+  try{ var r=await fetch("/api/admin/data",{headers:hdr()}); if(r.status===401)return; DATA=await r.json(); paint(); }catch(e){}
+}
+function activeSessions(){ return (DATA.sessions||[]).filter(function(s){ return s.messages && s.messages.some(function(m){return m.role==="user";}); }); }
+
+function paint(){
+  var leads=DATA.leads||[], act=activeSessions();
+  g("s-live").textContent=act.length;
+  g("s-new").textContent=leads.filter(function(l){return l.status==="New";}).length;
+  g("s-cb").textContent=leads.filter(function(l){return l.type==="Callback";}).length;
+  g("bookCount").textContent=leads.length;
+  renderList(act);
+  if(selectedId){ updateHead(); appendTranscript(); }
+  renderLeads(false);
+  if(tab==="cont") renderContacts(false);
+  if(tab==="rep") renderReports();
+  if(tab==="rev") renderReviews(false);
+  if(tab==="set") renderSettings();
+  checkSound(act);
+}
+function checkSound(act){
+  var mx=0, who="", txt="";
+  act.forEach(function(s){ for(var i=s.messages.length-1;i>=0;i--){ var m=s.messages[i]; if(m.role==="user"){ if(m.ts>mx){ mx=m.ts; who=s.visitorName||("Patient "+s.id.slice(-4)); txt=m.text; } break; } } });
+  if(!soundReady){ soundReady=true; maxUserTs=mx; return; }
+  if(mx>maxUserTs){ maxUserTs=mx; beep(); notifyNew(who,txt); }
+}
+function beep(){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); var o=actx.createOscillator(),gn=actx.createGain(); o.connect(gn); gn.connect(actx.destination); o.type="sine"; o.frequency.setValueAtTime(880,actx.currentTime); o.frequency.setValueAtTime(1175,actx.currentTime+0.12); gn.gain.setValueAtTime(0.0001,actx.currentTime); gn.gain.exponentialRampToValueAtTime(0.16,actx.currentTime+0.02); gn.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.35); o.start(); o.stop(actx.currentTime+0.36); }catch(e){} }
+function notifyNew(who,txt){ try{ if(document.hidden && window.Notification && Notification.permission==="granted") new Notification("\ud83d\udcac "+who,{body:txt,icon:"/icon-192.png",tag:"bedi-admin-new"}); }catch(e){} }
+
+/* ---- conversation list ---- */
+function isUnread(s){ if(s.id===selectedId) return false; var lm=last(s); return (lastSeen[s.id]||0) < s.messages.length && lm.role==="user"; }
+function initials(s){ if(s.visitorName){ var p=s.visitorName.trim().split(/\s+/); return (((p[0]||"")[0]||"")+((p[1]||"")[0]||"")||s.visitorName[0]).toUpperCase(); } return s.id.slice(-2).toUpperCase(); }
+function renderList(act){
+  var box=g("convList"), q=convQuery.trim().toLowerCase();
+  var unreadTotal=0; act.forEach(function(s){ if(isUnread(s)) unreadTotal++; });
+  var pip=g("convUnread"); if(pip){ pip.textContent=unreadTotal; pip.style.display=unreadTotal?"inline-block":"none"; }
+  var listed=act.filter(function(s){
+    if(ocFilter==="open" ? s.closed : !s.closed) return false;
+    if(q){ var nm=(s.visitorName||("patient "+s.id.slice(-4))).toLowerCase(), lm=last(s); if(nm.indexOf(q)<0 && (lm.text||"").toLowerCase().indexOf(q)<0) return false; }
+    return true;
+  });
+  if(!listed.length){
+    box.innerHTML='<div class="empty2"><span class="ico">'+(q?"\ud83d\udd0d":ocFilter==="closed"?"\u2705":"\ud83d\udcac")+'</span>'+(q?("No chats match \u201c"+esc(convQuery)+"\u201d"):ocFilter==="closed"?"No resolved chats yet.":"No open conversations.<br>Chats will appear here once a patient messages.")+'</div>';
+    return;
+  }
+  listed.sort(function(a,b){ return b.lastActivity-a.lastActivity; });
+  box.innerHTML="";
+  listed.forEach(function(s){
+    var lm=last(s), human=s.mode==="human", unread=isUnread(s);
+    var nm=s.visitorName?esc(s.visitorName):"Patient "+esc(s.id.slice(-4));
+    var d=document.createElement("div"); d.className="citem"+(s.id===selectedId?" sel":"")+(unread?" unread":"");
+    d.innerHTML='<div class="ava">'+esc(initials(s))+'</div>'+
+      '<div class="mid"><div class="nm">'+nm+
+        (human?' <span class="bdg b-h">You</span>':' <span class="bdg b-ai">AI</span>')+
+        (s.closed?' <span class="cl-tag">Closed</span>':'')+
+        (unread?' <span class="dot"></span>':'')+'</div>'+
+        '<div class="pv">'+(lm.role==="user"?"":lm.role==="team"?"You: ":"Assistant: ")+esc(lm.text)+'</div></div>'+
+      '<div class="rt">'+ago(s.lastActivity)+'</div>';
+    d.onclick=function(){ selectConv(s.id); };
+    box.appendChild(d);
+  });
+}
+
+function selectConv(id){
+  selectedId=id; detailCount=0;
+  var s=findSession(id); lastSeen[id]= s? s.messages.length : 0; saveSeen();
+  var det=document.querySelector(".detail");
+  det.innerHTML=
+    '<div class="dhead"><button class="back" id="backBtn">&larr;</button>'+
+    '<div><div class="who" id="dWho"></div><div class="sub" id="dSub"></div></div>'+
+    '<button class="hb" id="hbBtn" style="display:none">Hand back to Assistant</button>'+
+    '<button class="rsv" id="rsvBtn"></button>'+
+    '<button class="del" id="delChatBtn" title="Delete this chat" style="margin-left:6px;font-size:16px">\uD83D\uDDD1</button></div>'+
+    '<div class="p-context" id="pContext" style="display:none">'+
+      '<div class="ctx-row">'+
+        '<div><span class="p-context-title">📞 Contact:</span> <span id="pCtxPhone"></span></div>'+
+        '<div><span class="p-context-title">📅 Past Leads:</span> <span id="pCtxCount"></span></div>'+
+      '</div>'+
+      '<div style="margin-top:4px"><span class="p-context-title">📝 Note:</span> <span id="pCtxNote"></span></div>'+
+    '</div>'+
+    '<div class="tr" id="transcript"></div>'+
+    '<div class="replybar"><div class="qrwrap"><button class="qr" id="qrBtn" title="Quick replies">\u26a1</button></div>'+
+    '<input id="replyInput" placeholder="Reply as coordinator (pauses Assistant)\u2026" autocomplete="off"/>'+
+    '<button class="send" id="replySend">&rarr;</button></div>';
+  g("backBtn").onclick=function(){ g("convTab").classList.remove("show-detail"); selectedId=null; renderList(activeSessions()); };
+  g("hbBtn").onclick=function(){ if(selectedId) fetch("/api/staff/handback",{method:"POST",headers:hdr(),body:JSON.stringify({sessionId:selectedId})}).then(refresh); };
+  g("rsvBtn").onclick=toggleResolved;
+  g("delChatBtn").onclick=deleteChat;
+  g("qrBtn").onclick=toggleQuick;
+  g("replySend").onclick=sendReply;
+  g("replyInput").addEventListener("keydown",function(e){ if(e.key==="Enter") sendReply(); });
+  g("convTab").classList.add("show-detail");
+  updateHead(); appendTranscript(); renderList(activeSessions());
+}
+function deleteChat(){
+  if(!selectedId) return;
+  if(!confirm("Delete this whole conversation? This can’t be undone.")) return;
+  var sid=selectedId;
+  fetch("/api/admin/conversation-delete",{method:"POST",headers:hdr(),body:JSON.stringify({sessionId:sid})})
+    .then(function(){
+      selectedId=null;
+      g("convTab").classList.remove("show-detail");
+      var det=document.querySelector(".detail");
+      if(det) det.innerHTML='<div id="detailInner" class="nodetail">Select a conversation on the left to read it and reply.</div>';
+      refresh();
+    });
+}
+function toggleResolved(){
+  var s=findSession(selectedId); if(!s)return; var nc=!s.closed; var wasId=selectedId;
+  fetch("/api/admin/conversation-status",{method:"POST",headers:hdr(),body:JSON.stringify({sessionId:wasId,closed:nc})})
+    .then(function(){
+      s.closed=nc;
+      if(nc){
+        selectedId=null;
+        g("convTab").classList.remove("show-detail");
+        var det=document.querySelector(".detail");
+        if(det) det.innerHTML='<div id="detailInner" class="nodetail">Select a conversation on the left to read it and reply.</div>';
+      } else {
+        var rb=g("rsvBtn"); if(rb) rb.textContent="\u2713 Resolve";
+        updateHead();
+      }
+      refresh();
+    });
+}
+function toggleQuick(){
+  var ex=g("qrpop"); if(ex){ ex.remove(); return; }
+  var p=document.createElement("div"); p.className="qrpop"; p.id="qrpop";
+  QUICK.forEach(function(t){ var i=document.createElement("div"); i.className="qi"; i.textContent=t; i.onclick=function(){ var inp=g("replyInput"); inp.value=t; inp.focus(); p.remove(); }; p.appendChild(i); });
+  g("qrBtn").parentNode.appendChild(p);
+}
+function findSession(id){ return (DATA.sessions||[]).find(function(s){return s.id===id;}); }
+
+function updateHead(){
+  var s=findSession(selectedId); if(!s||!g("dWho"))return;
+  var human=s.mode==="human", rem=human&&s.resumeAt?(s.resumeAt-Date.now()):0;
+  g("dWho").textContent= s.visitorName || ("Patient "+s.id.slice(-4));
+  g("dSub").innerHTML= s.closed? "Resolved \u00b7 closed" : (human? "You’re handling \u00b7 Assistant resumes in "+mmss(rem) : "Assistant is handling");
+  g("hbBtn").style.display= human? "block":"none";
+  var rb=g("rsvBtn"); if(rb) rb.textContent= s.closed? "Reopen" : "\u2713 Resolve";
+  
+  var sessLeads = (DATA.leads||[]).filter(function(l){return l.sessionId === selectedId;});
+  if (sessLeads.length > 0 && g("pContext")) {
+    var cLead = sessLeads[0];
+    var digits=(cLead.phone||"").replace(/\D/g,"");
+    var key=digits||("e:"+(cLead.email||"").toLowerCase());
+    var m=(DATA.contactMeta||{})[key]||{};
+    var allSessLeads = (DATA.leads||[]).filter(function(l){
+        var d=(l.phone||"").replace(/\D/g,"");
+        var k=d||("e:"+(l.email||"").toLowerCase());
+        return k === key;
+    });
+    g("pContext").style.display="flex";
+    g("pCtxPhone").innerHTML = esc(cLead.phone) + (cLead.email ? " &middot; " + esc(cLead.email) : "");
+    g("pCtxCount").textContent = allSessLeads.length;
+    g("pCtxNote").textContent = m.notes ? esc(m.notes) : "No private notes on file.";
+  } else if (g("pContext")) {
+    g("pContext").style.display="none";
+  }
+}
+function appendTranscript(){
+  var s=findSession(selectedId), tr=g("transcript"); if(!s||!tr)return;
+  for(var i=detailCount;i<s.messages.length;i++){
+    var m=s.messages[i], cls=m.role==="user"?"user":m.role==="team"?"team":m.role==="system"?"sys":"bot";
+    var d=document.createElement("div"); d.className="m "+cls;
+    d.innerHTML=(m.role==="team"?'<div class="lab">You</div>':"")+esc(m.text);
+    tr.appendChild(d);
+  }
+  if(s.messages.length>detailCount){ detailCount=s.messages.length; lastSeen[selectedId]=detailCount; saveSeen(); tr.scrollTop=tr.scrollHeight; }
+}
+function sendReply(){
+  var inp=g("replyInput"); if(!inp)return; var t=inp.value.trim(); if(!t)return;
+  inp.value="";
+  var s=findSession(selectedId);
+  if(s){ s.messages.push({role:"team",text:t,ts:Date.now()}); s.mode="human"; s.lastActivity=Date.now(); appendTranscript(); updateHead(); }
+  fetch("/api/staff/reply",{method:"POST",headers:hdr(),body:JSON.stringify({sessionId:selectedId,text:t})}).then(refresh).catch(function(){});
+}
+
+function telHref(p){ return "tel:"+String(p||"").replace(/[^\d+]/g,""); }
+function smsHref(p){ return "sms:"+String(p||"").replace(/[^\d+]/g,""); }
+
+function renderLeads(force){
+  var all=DATA.leads||[];
+  var dStart = g("fDateStart").value ? new Date(g("fDateStart").value + "T00:00:00").getTime() : 0;
+  var dEnd = g("fDateEnd").value ? new Date(g("fDateEnd").value + "T23:59:59.999").getTime() : Infinity;
+
+  var rows=all.filter(function(l){
+    if(fType && (l.type||"Booking")!==fType) return false;
+    if(fStatus && l.status!==fStatus) return false;
+    if(l.createdAt < dStart || l.createdAt >= dEnd) return false;
+    return true;
+  });
+  rows.sort(function(a,b){ return fSort==="old" ? a.createdAt-b.createdAt : b.createdAt-a.createdAt; });
+  
+  var filterSig=fType+"|"+fStatus+"|"+fSort+"|"+rows.length+"|"+dStart+"|"+dEnd;
+  if(window.lastFilterSig !== filterSig) { currentLeadPage = 1; window.lastFilterSig = filterSig; }
+  
+  var sig=filterSig+"|"+rows.map(function(l){return l.id+l.status;}).join(",");
+  if(!force && sig===leadSig) return;
+  leadSig=sig;
+  
+  var box=g("leadsWrapper");
+  if(!all.length){ box.innerHTML='<div class="empty2"><span class="ico">\uD83D\uDCE5</span>No consultations or callbacks yet.<br>They’ll appear here the moment someone requests via chat.</div>'; return; }
+  if(!rows.length){ box.innerHTML='<div class="empty">No results match these filters.</div>'; return; }
+  
+  var totalPages = Math.ceil(rows.length / leadsPerPage) || 1;
+  if(currentLeadPage > totalPages) currentLeadPage = totalPages;
+  var pagedRows = rows.slice((currentLeadPage - 1) * leadsPerPage, currentLeadPage * leadsPerPage);
+  
+  var t='<div id="leadsBox"><table><tr><th>Patient</th><th>Requirement</th><th>When</th><th>Status</th><th>Received</th><th></th></tr>';
+  pagedRows.forEach(function(l){
+    var typeTag=l.type==="Callback"?' <span class="tag">Callback</span>':l.type==="Enquiry"?' <span class="tag" style="background:#E6F5EE;color:#0A4D4A">Enquiry</span>':'';
+    var phone=l.phone?'<a href="'+telHref(l.phone)+'">'+esc(l.phone)+'</a> <a href="'+smsHref(l.phone)+'" class="txtlink" title="Text">\uD83D\uDCAC</a>':'';
+    t+='<tr><td>'+(l.sessionId?'<b class="leadopen" data-open="'+esc(l.sessionId)+'" title="Open this chat" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px">'+esc(l.name)+'</b>':'<b>'+esc(l.name)+'</b>')+typeTag+
+      '<br><span style="color:var(--muted);font-size:12px">'+phone+(l.email?' \u00b7 '+esc(l.email):'')+(l.patientType&&l.patientType!=="\u2014"?' \u00b7 '+esc(l.patientType):'')+'</span></td>'+
+      '<td>'+esc(l.service)+'</td><td style="font-size:12.5px">'+esc(l.when)+'</td>'+
+      '<td class="pillcell">'+["New","Contacted","Booked"].map(function(o){return '<button class="spill'+(l.status===o?' on':'')+'" data-lead="'+l.id+'" data-st="'+o+'">'+o+'</button>';}).join("")+'</td>'+
+      '<td style="color:var(--muted);font-size:11.5px">'+ago(l.createdAt)+' ago</td>'+
+      '<td><button class="del" data-del="'+l.id+'" title="Delete">\uD83D\uDDD1</button></td></tr>';
+  });
+  
+  var pagHTML = '';
+  if (totalPages > 1) {
+    pagHTML = '<div class="pagination">' +
+      '<button class="btn ghost" data-lpage="'+(currentLeadPage-1)+'" '+(currentLeadPage===1?'disabled':'')+'>&larr; Previous</button>' +
+      '<span style="color:var(--muted)">Page <b>'+currentLeadPage+'</b> of '+totalPages+'</span>' +
+      '<button class="btn ghost" data-lpage="'+(currentLeadPage+1)+'" '+(currentLeadPage===totalPages?'disabled':'')+'>Next &rarr;</button>' +
+      '</div>';
+  }
+  
+  box.innerHTML=t+'</table></div>'+pagHTML;
+  
+  box.querySelectorAll("button.spill").forEach(function(btn){
+    btn.onclick=function(){ fetch("/api/admin/lead-status",{method:"POST",headers:hdr(),body:JSON.stringify({id:btn.getAttribute("data-lead"),status:btn.getAttribute("data-st")})}).then(function(){ leadSig=""; refresh(); }); };
+  });
+  box.querySelectorAll("button.del[data-del]").forEach(function(b){ b.onclick=function(){ deleteLead(b.getAttribute("data-del")); }; });
+  box.querySelectorAll(".leadopen[data-open]").forEach(function(b){ b.onclick=function(){ openLeadChat(b.getAttribute("data-open")); }; });
+  box.querySelectorAll("button[data-lpage]").forEach(function(b){
+    b.onclick=function(){ currentLeadPage=parseInt(b.getAttribute("data-lpage")); leadSig=""; renderLeads(true); };
+  });
+}
+
+function csvCell(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; }
+function exportLeads(){
+  var leads = DATA.leads || [];
+  if(!leads.length){ alert("No bookings or callbacks to export yet."); return; }
+  var rows = [["Name","Mobile","Email","Status"]];
+  leads.forEach(function(l){ rows.push([l.name, l.phone, l.email, l.status]); });
+  var csv = rows.map(function(r){ return r.map(csvCell).join(","); }).join("\r\n");
+  var blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" }); 
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "dr-bedi-leads-" + new Date().toISOString().slice(0,10) + ".csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+/* ================= PATIENTS (CRM) ================= */
+var contactSig="";
+function buildContacts(){
+  var leads=DATA.leads||[], map={};
+  leads.forEach(function(l){
+    var digits=(l.phone||"").replace(/\D/g,"");
+    var key=digits||("e:"+(l.email||"").toLowerCase());
+    if(!key) return;
+    var c=map[key];
+    if(!c){ c=map[key]={ key:digits||key, phone:l.phone||"", name:l.name||"", email:l.email||"", service:l.service||"", status:l.status, last:l.createdAt, count:0, booking:false, callback:false }; }
+    c.count++;
+    if(l.createdAt>=c.last){ c.last=l.createdAt; c.status=l.status; c.service=l.service||c.service; }
+    if(!c.name && l.name) c.name=l.name;
+    if(!c.email && l.email) c.email=l.email;
+    if(l.type==="Callback") c.callback=true; else if(l.type==="Enquiry") c.enquiry=true; else c.booking=true;
+  });
+  return Object.values(map).sort(function(a,b){ return b.last-a.last; });
+}
+function renderContacts(force){
+  var list=buildContacts(), meta=DATA.contactMeta||{};
+  var q=(g("contactSearch")&&g("contactSearch").value||"").toLowerCase().trim();
+  if(q){ list=list.filter(function(c){ return (c.name+" "+c.phone+" "+c.email).toLowerCase().indexOf(q)>=0; }); }
+  
+  if(window.lastContQ !== q) { currentContactPage = 1; window.lastContQ = q; }
+  
+  var sig=q+"|"+list.map(function(c){ return c.key+c.status+c.count+((meta[c.key]&&meta[c.key].reviewRequestedAt)||0); }).join(",");
+  if(!force && sig===contactSig) return;
+  contactSig=sig;
+  
+  var box=g("contactsBox");
+  var pagBox=g("contactsPagBox");
+  
+  if(!list.length){ 
+    box.innerHTML='<div class="empty" style="grid-column:1/-1">'+(q?"No patients match that search.":"No patients yet — they appear here once someone requests a consult.")+'</div>'; 
+    pagBox.innerHTML=''; 
+    return; 
+  }
+  
+  var totalPages = Math.ceil(list.length / contactsPerPage) || 1;
+  if(currentContactPage > totalPages) currentContactPage = totalPages;
+  var pagedList = list.slice((currentContactPage - 1) * contactsPerPage, currentContactPage * contactsPerPage);
+  
+  box.innerHTML="";
+  pagedList.forEach(function(c){
+    var m=meta[c.key]||{}, init=(c.name||"?").trim().slice(0,2).toUpperCase();
+    var d=document.createElement("div"); d.className="card";
+    d.innerHTML=
+      '<div class="ch"><div class="ava">'+esc(init)+'</div><div style="min-width:0"><div class="cn">'+esc(c.name||"Unknown")+'</div>'+
+        '<div class="cc">'+esc(c.phone||"")+(c.email?' · '+esc(c.email):'')+'</div></div></div>'+
+      '<div class="meta">'+
+        (c.booking?'<span class="chip2">Consultation</span>':'')+(c.callback?'<span class="chip2 cb">Callback</span>':'')+(c.enquiry?'<span class="chip2" style="background:#E6F5EE;color:#0A4D4A">Enquiry</span>':'')+
+        (c.service?'<span class="chip2">'+esc(c.service)+'</span>':'')+
+        '<span class="chip2" style="background:#F0F4F3;color:var(--muted)">'+ago(c.last)+' ago</span>'+
+        (m.reviewRequestedAt?'<span class="chip2" style="background:#E6F5EE;color:var(--green)">★ review asked</span>':'')+
+      '</div>'+
+      '<textarea id="ta-'+esc(c.key)+'" placeholder="Add private feedback or notes here…">'+esc(m.notes||"")+'</textarea>'+
+      '<div class="crow">'+
+        '<button class="btn ghost" data-save-note="'+esc(c.key)+'">💾 Save note</button>'+
+        (c.phone?'<a class="btn ghost" href="'+telHref(c.phone)+'">📞 Call</a><a class="btn ghost" href="'+smsHref(c.phone)+'">💬 Text</a>':'')+
+        (c.email?(m.reviewRequestedAt?'<button class="btn ghost" disabled style="opacity:.6">✓ Request sent</button>':'<button class="btn ghost" data-rr-name="'+esc(c.name||"")+'" data-rr-email="'+esc(c.email)+'" data-rr-phone="'+esc(c.key)+'">📧 Request review</button>'):(c.phone?'':'<span class="hint" style="margin:0">No email on file</span>'))+
+        '<button class="btn ghost cdel" data-del-contact="'+esc(c.key)+'">\uD83D\uDDD1 Delete</button>'+
+      '</div>';
+    box.appendChild(d);
+  });
+  
+  box.querySelectorAll("[data-save-note]").forEach(function(b){
+    b.onclick=function(){
+      var key=b.getAttribute("data-save-note");
+      var ta=g("ta-"+key); if(!ta)return;
+      var val=ta.value;
+      b.textContent="Saving..."; b.disabled=true;
+      DATA.contactMeta=DATA.contactMeta||{}; 
+      DATA.contactMeta[key]=Object.assign({},DATA.contactMeta[key],{notes:val}); 
+      fetch("/api/admin/contact-note",{method:"POST",headers:hdr(),body:JSON.stringify({key:key,notes:val})})
+        .then(function(){ 
+            b.textContent="✓ Saved"; 
+            setTimeout(function(){ b.textContent="💾 Save note"; b.disabled=false; }, 2000);
+        }).catch(function(){ b.textContent="⚠️ Error"; b.disabled=false; });
+    };
+  });
+  
+  box.querySelectorAll("[data-rr-email]").forEach(function(btn){
+    btn.onclick=function(){ sendReviewRequest(btn.getAttribute("data-rr-name"),btn.getAttribute("data-rr-email"),btn.getAttribute("data-rr-phone"),btn); };
+  });
+  box.querySelectorAll("[data-del-contact]").forEach(function(b){ b.onclick=function(){ deleteContact(b.getAttribute("data-del-contact")); }; });
+  
+  if (totalPages > 1) {
+    pagBox.innerHTML = '<div class="pagination">' +
+      '<button class="btn ghost" data-cpage="'+(currentContactPage-1)+'" '+(currentContactPage===1?'disabled':'')+'>&larr; Previous</button>' +
+      '<span style="color:var(--muted)">Page <b>'+currentContactPage+'</b> of '+totalPages+'</span>' +
+      '<button class="btn ghost" data-cpage="'+(currentContactPage+1)+'" '+(currentContactPage===totalPages?'disabled':'')+'>Next &rarr;</button>' +
+      '</div>';
+    pagBox.querySelectorAll("button[data-cpage]").forEach(function(b){
+      b.onclick=function(){ currentContactPage=parseInt(b.getAttribute("data-cpage")); contactSig=""; renderContacts(true); };
+    });
+  } else {
+    pagBox.innerHTML = '';
+  }
+}
+if(g("contactSearch")) g("contactSearch").oninput=function(){ renderContacts(true); };
+
+/* ================= REPORTS ================= */
+function buildReportUI(chats, cToday, cWeek, leads, bookings, cb, hum, byDowArr, topSvc) {
+  var cards=[
+    [chats,"Total chats"],[cToday,"Chats today"],[cWeek,"This week"],
+    [leads,"Leads"],[bookings,"Consultations"],[cb,"Callbacks"],
+    [(chats?Math.round(((bookings||0)+(cb||0))/chats*100):0)+"%","Conversion"],[hum,"Handled by you"]
+  ];
+  g("statsGrid").innerHTML=cards.map(function(c){ return '<div class="scard"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>'; }).join("");
+  var names=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], order=[1,2,3,4,5,6,0];
+  var vals=order.map(function(i){ return byDowArr[i]||0; }), labels=order.map(function(i){ return names[i]; });
+  var max=Math.max.apply(null,vals.concat([1]));
+  g("dowBars").innerHTML=vals.map(function(v,i){
+    return '<div class="bar2"><div class="bv">'+(v||"")+'</div><div class="fill" style="height:'+Math.round(v/max*100)+'%"></div><div class="bl">'+labels[i]+'</div></div>';
+  }).join("");
+  var smax=topSvc.length?topSvc[0][1]:1;
+  g("svcList").innerHTML = topSvc.length
+    ? topSvc.map(function(s){ return '<div class="svc-row"><div class="snm">'+esc(s[0])+'</div><div class="track"><div class="tk" style="width:'+Math.round(s[1]/smax*100)+'%"></div></div><div class="ct">'+s[1]+'</div></div>'; }).join("")
+    : '<div class="empty">No bookings for this period.</div>';
+}
+
+function renderReports(){
+  var st=DATA.stats; if(!st) return;
+  var startVal = g("repDateStart").value;
+  var endVal = g("repDateEnd").value;
+  
+  if (!startVal && !endVal) {
+    buildReportUI(st.chats, st.chatsToday, st.chatsWeek, st.leads, st.bookings, st.callbacks, st.humanTakeovers, st.byDow, st.topServices||[]);
+  } else {
+    var start = startVal ? new Date(startVal + "T00:00:00").getTime() : 0;
+    var end = endVal ? new Date(endVal + "T23:59:59.999").getTime() : Infinity;
+    
+    var fLeads = (DATA.leads||[]).filter(function(l){ return l.createdAt >= start && l.createdAt <= end; });
+    var fSess = (DATA.sessions||[]).filter(function(s){ return s.createdAt >= start && s.createdAt <= end; });
+    
+    var rChats = fSess.length;
+    var rLeads = fLeads.length;
+    var rBookings = fLeads.filter(function(l){return l.type==="Booking"}).length;
+    var rCallbacks = fLeads.filter(function(l){return l.type==="Callback"}).length;
+    var rHuman = fSess.filter(function(s){ return s.messages.some(function(m){return m.role==="team";}); }).length;
+    
+    var byDow = [0,0,0,0,0,0,0];
+    fSess.forEach(function(s){ byDow[new Date(s.createdAt).getDay()]++; });
+    
+    var svc={};
+    fLeads.forEach(function(l){ var k = l.service || "General enquiry"; svc[k]=(svc[k]||0)+1; });
+    var topSvc = Object.entries(svc).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+    
+    buildReportUI(rChats, "-", "-", rLeads, rBookings, rCallbacks, rHuman, byDow, topSvc);
+  }
+}
+
+/* ================= REVIEWS / REVIEW REQUESTS ================= */
+var revSig="";
+function renderReviews(force){
+  var s=DATA.settings||{}, rr=DATA.reviewRequests||[];
+  var sig=(s.reviewLink||"")+"|"+rr.length;
+  if(!force && sig===revSig) return;
+  revSig=sig;
+  if(g("reviewLink")!==document.activeElement) g("reviewLink").value=s.reviewLink||"";
+  g("linkState").innerHTML = s.reviewLink ? '<span class="ok">✓ link saved</span>' : '<span style="color:var(--amber);font-weight:700">— not set yet</span>';
+  g("rrList").innerHTML = rr.length
+    ? rr.slice(0,40).map(function(r){ return '<div class="rr-item"><span>'+esc(r.name||r.email)+' <span style="color:var(--muted)">'+esc(r.email)+'</span></span><span style="color:var(--muted)">'+ago(r.ts)+' ago</span></div>'; }).join("")
+    : '<div class="empty">No review requests sent yet.</div>';
+}
+g("saveLink").onclick=function(){
+  var v=g("reviewLink").value.trim();
+  g("saveLink").textContent="Saving…"; g("saveLink").disabled=true;
+  fetch("/api/admin/settings",{method:"POST",headers:hdr(),body:JSON.stringify({reviewLink:v})})
+    .then(function(r){return r.json();})
+    .then(function(){ DATA.settings=DATA.settings||{}; DATA.settings.reviewLink=v; revSig=""; renderReviews(true); })
+    .catch(function(){})
+    .then(function(){ g("saveLink").textContent="Save"; g("saveLink").disabled=false; });
+};
+g("rrSend").onclick=function(){ sendReviewRequest(g("rrName").value.trim(), g("rrEmail").value.trim(), "", g("rrSend")); };
+function sendReviewRequest(name,email,phone,btn){
+  if(!email){ if(btn) flashBtn(btn,"Add an email"); return; }
+  var orig=btn?btn.textContent:""; if(btn){ btn.textContent="Sending\u2026"; btn.disabled=true; }
+  fetch("/api/admin/review-request",{method:"POST",headers:hdr(),body:JSON.stringify({name:name,email:email,phone:phone})})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+    .then(function(res){
+      if(!res.ok){ if(btn) flashBtn(btn,"\u26a0 "+((res.j&&res.j.error)||"Failed"),orig,6000); return; }
+      if(btn){ btn.textContent="\u2713 Request sent"; btn.disabled=true; }
+      if(g("rrName"))g("rrName").value=""; if(btn===g("rrSend")&&g("rrEmail"))g("rrEmail").value="";
+      revSig=""; contactSig=""; refresh();
+    })
+    .catch(function(){ if(btn) flashBtn(btn,"\u26a0 Failed",orig,2500); });
+}
+function flashBtn(btn,msg,orig,ms){ var o=(orig!==undefined&&orig!=="")?orig:btn.textContent; btn.textContent=msg; btn.disabled=true; setTimeout(function(){ btn.textContent=o; btn.disabled=false; }, ms||1800); }
+
+/* ================= PUSH NOTIFICATIONS ================= */
+var swReg=null;
+function isStandalone(){ return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone===true; }
+function isiOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+function pushSupported(){ return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window); }
+async function initPush(){
+  if(!('serviceWorker' in navigator)) return;
+  try{ swReg = await navigator.serviceWorker.register('/sw.js'); }catch(e){}
+  updateBell();
+}
+function updateBell(){
+  var b=g("bellBtn"); if(!b) return;
+  if(!pushSupported() && !isiOS()){ b.style.display="none"; return; }
+  if(('Notification' in window) && Notification.permission==="granted"){ b.textContent="🔔 Alerts on"; b.classList.add("on2"); }
+  else { b.textContent="🔔 Enable alerts"; b.classList.remove("on2"); }
+}
+function urlB64ToUint8(base64){
+  var pad="=".repeat((4-base64.length%4)%4), s=(base64+pad).replace(/-/g,"+").replace(/_/g,"/");
+  var raw=atob(s), arr=new Uint8Array(raw.length); for(var i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i); return arr;
+}
+async function enableAlerts(){
+  if(isiOS() && !isStandalone()){
+    alert("To get alerts on iPhone:\n\n1. Tap the Share button (the square with an arrow)\n2. Choose “Add to Home Screen”\n3. Open “Bedi Inbox” from your home screen\n4. Tap “Enable alerts” again");
+    return;
+  }
+  if(!pushSupported()){ alert("This browser can't show push alerts. Try Chrome (Android) or add the app to your iPhone Home Screen first."); return; }
+  var b=g("bellBtn"); var orig=b?b.textContent:""; if(b){ b.textContent="…"; b.disabled=true; }
+  try{
+    var perm=await Notification.requestPermission();
+    if(perm!=="granted"){ if(b){b.textContent=orig;b.disabled=false;} alert("Alerts are blocked. Enable notifications for this app in your phone/browser settings, then try again."); return; }
+    if(!swReg) swReg=await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    var kr=await fetch('/api/push/key'); var kj=await kr.json();
+    if(!kj.key){ if(b){b.textContent=orig;b.disabled=false;} alert("Push isn't configured on the server yet."); return; }
+    var sub=await swReg.pushManager.getSubscription();
+    if(!sub) sub=await swReg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:urlB64ToUint8(kj.key) });
+    await fetch('/api/push/subscribe',{method:'POST',headers:hdr(),body:JSON.stringify({subscription:sub})});
+    if(b){ b.disabled=false; }
+    updateBell();
+    var tr=await fetch('/api/push/test',{method:'POST',headers:hdr()}); var tj={}; try{tj=await tr.json();}catch(e2){}
+    alert("✅ Alerts are ON. Test sent to "+(tj.subs||0)+" device(s).\n\nDidn't buzz? Check:\n• Open this app from the Home-Screen icon (not Safari)\n• iPhone Settings → Notifications → ‘Bedi Inbox’ → Allow");
+  }catch(e){ if(b){b.textContent=orig;b.disabled=false;} alert("Couldn't turn on alerts: "+(e&&e.message||e)); }
+}
+if(g("bellBtn")) g("bellBtn").onclick=enableAlerts;
+
+/* ================= SETTINGS ================= */
+function renderSettings(){
+  var st=DATA.settings||{};
+  if(g("setGreeting")&&g("setGreeting")!==document.activeElement) g("setGreeting").value=st.greeting||"";
+  if(g("setEmail")&&g("setEmail")!==document.activeElement) g("setEmail").value=st.notifyEmail||"";
+  if(g("setResume")&&g("setResume")!==document.activeElement) g("setResume").value=(st.handbackMinutes!=null?st.handbackMinutes:"");
+  if(g("setReviewLink")&&g("setReviewLink")!==document.activeElement) g("setReviewLink").value=st.reviewLink||"";
+}
+function saveSetting(payload,btn,stateId){
+  var orig=btn.textContent; btn.textContent="Saving…"; btn.disabled=true;
+  fetch("/api/admin/settings",{method:"POST",headers:hdr(),body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(j){ if(j&&j.settings) DATA.settings=j.settings; if(stateId&&g(stateId)) g(stateId).innerHTML='<span class="ok">✓ saved</span>'; revSig=""; })
+    .catch(function(){ if(stateId&&g(stateId)) g(stateId).innerHTML='<span style="color:var(--amber);font-weight:700">⚠️ failed</span>'; })
+    .then(function(){ btn.textContent=orig; btn.disabled=false; });
+}
+if(g("saveGreeting")) g("saveGreeting").onclick=function(){ saveSetting({greeting:g("setGreeting").value},this,"setGreetState"); };
+if(g("saveEmail")) g("saveEmail").onclick=function(){ saveSetting({notifyEmail:g("setEmail").value},this,"setEmailState"); };
+if(g("saveResume")) g("saveResume").onclick=function(){ saveSetting({handbackMinutes:g("setResume").value},this,"setResumeState"); };
+if(g("saveReviewLink")) g("saveReviewLink").onclick=function(){ saveSetting({reviewLink:g("setReviewLink").value},this,"setReviewState"); };
+
+/* Bind Date Filters */
+["fType","fStatus","fSort","fDateStart","fDateEnd"].forEach(function(id){ var el=g(id); if(el) el.onchange=function(){ fType=g("fType").value; fStatus=g("fStatus").value; fSort=g("fSort").value; renderLeads(true); }; });
+["repDateStart","repDateEnd"].forEach(function(id){ var el=g(id); if(el) el.onchange=function(){ renderReports(); }; });
+
+function deleteLead(id){
+  if(!confirm("Delete this consultation request/lead? This can’t be undone.")) return;
+  fetch("/api/admin/lead-delete",{method:"POST",headers:hdr(),body:JSON.stringify({id:id})}).then(function(){ leadSig=""; contactSig=""; refresh(); });
+}
+function deleteContact(key){
+  if(!confirm("Delete this patient and all their consultation records? This can’t be undone.")) return;
+  fetch("/api/admin/contact-delete",{method:"POST",headers:hdr(),body:JSON.stringify({key:key})}).then(function(){ leadSig=""; contactSig=""; refresh(); });
+}
+function clearAllLeads(){
+  if(!confirm("Delete ALL consultations, callbacks, enquiries and patient records? This permanently clears everything and can’t be undone.")) return;
+  fetch("/api/admin/leads-clear",{method:"POST",headers:hdr(),body:JSON.stringify({})}).then(function(){ leadSig=""; contactSig=""; refresh(); });
+}
+function logout(){ if(!confirm("Log out of the staff inbox?")) return; try{ localStorage.removeItem("bedi_admin_tok"); }catch(e){} location.reload(); }
+if(g("logoutBtn")) g("logoutBtn").onclick=logout;
+function openLeadChat(sid){
+  var sess=findSession(sid);
+  if(!sess){ alert("This lead came in through the booking form — there’s no chat conversation to open."); return; }
+  showTab("conv"); selectConv(sid);
+}
+if(g("clearBtn")) g("clearBtn").onclick=clearAllLeads;
+if(g("clearContactsBtn")) g("clearContactsBtn").onclick=clearAllLeads;
+
+g("exportBtn").onclick = exportLeads;
+</script>
+</body></html>
