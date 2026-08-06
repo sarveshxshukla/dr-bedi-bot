@@ -1,5 +1,5 @@
 // Dr. Rajeev Bedi OPD — chatbot backend (Google Gemini) + staff inbox
-// Run: npm install && npm start   (after copying .env.example -> .env)
+// Run: npm install && npm start    (after copying .env.example -> .env)
 import express from "express";
 import fs from "fs";
 import path from "path";
@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_KEYS = (process.env.GEMINI_API_KEY || "").split(",").map(k => k.trim()).filter(Boolean);
 const GEMINI_KEY = GEMINI_KEYS[0] || "";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GROQ_KEY = process.env.GROQ_API_KEY || "";                          
+const GROQ_KEY = process.env.GROQ_API_KEY || "";                         
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const AI_READY = GEMINI_KEYS.length > 0 || !!GROQ_KEY;
 const BOOKING_URL = process.env.BOOKING_URL || "https://drrajeevbedi.com/book"; 
@@ -33,10 +33,10 @@ try { db = JSON.parse(fs.readFileSync(DATA_FILE, "utf8")); } catch {}
 db.sessions = db.sessions || {};
 db.leads = db.leads || [];
 db.deletedSessions = db.deletedSessions || [];
-db.contactMeta = db.contactMeta || {};                                  
-db.reviewRequests = db.reviewRequests || [];                            
+db.contactMeta = db.contactMeta || {};                          
+db.reviewRequests = db.reviewRequests || [];                    
 db.settings = db.settings || { reviewLink: process.env.REVIEW_LINK || "" };
-db.pushSubs = db.pushSubs || [];                                        
+db.pushSubs = db.pushSubs || [];                                
 
 /* -------------------- push notifications (Web Push / PWA) -------------------- */
 if (!db.settings.vapid) {
@@ -121,12 +121,12 @@ function buildSystem(session) {
   if (session.contact && session.contact.name) {
     const first = session.contact.name.split(/\s+/)[0];
     prompt = (
-"\u26a0\ufe0f TOP-PRIORITY RULE \u2014 THIS OVERRIDES THE BOOKING STEPS BELOW:\n" +
+"⚠️ TOP-PRIORITY RULE — THIS OVERRIDES THE BOOKING STEPS BELOW:\n" +
 first + " has ALREADY completed our contact form, so we HAVE their name, mobile number and email on file.\n" +
-"\u2022 NEVER ask " + first + " for their name, mobile, or email \u2014 you already have all three. Asking again is a mistake.\n" +
-"\u2022 For a booking: do NOT ask anything at all \u2014 just give one line telling them to tap the button below to book. The booking button appears automatically. Keep action \"none\" and lead empty.\n" +
-"\u2022 For a CALLBACK for THEMSELVES: you ALREADY have their name and mobile \u2014 do NOT ask for the mobile number again. Just confirm what the consultation is regarding, then set action to \"callback\" and leave lead.name and lead.phone EMPTY.\n" +
-"\u2022 The ONLY time you may collect a fresh name + mobile is if " + first + " clearly says the appointment is for a DIFFERENT person (e.g. a parent or relative).\n\n" +
+"• NEVER ask " + first + " for their name, mobile, or email — you already have all three. Asking again is a mistake.\n" +
+"• For a booking: do NOT ask anything at all — just give one line telling them to tap the button below to book. The booking button appears automatically. Keep action \"none\" and lead empty.\n" +
+"• For a CALLBACK for THEMSELVES: you ALREADY have their name and mobile — do NOT ask for the mobile number again. Just confirm what the consultation is regarding, then set action to \"callback\" and leave lead.name and lead.phone EMPTY.\n" +
+"• The ONLY time you may collect a fresh name + mobile is if " + first + " clearly says the appointment is for a DIFFERENT person (e.g. a parent or relative).\n\n" +
 SYSTEM_PROMPT
     );
   }
@@ -213,7 +213,7 @@ function parseReply(raw) {
 /* -------------------- notifications -------------------- */
 function transcriptText(s) {
   return s.messages.map(m => {
-    const who = m.role === "user" ? "Patient" : m.role === "team" ? "Reception" : m.role === "system" ? "\u2014" : "Assistant";
+    const who = m.role === "user" ? "Patient" : m.role === "team" ? "Reception" : m.role === "system" ? "—" : "Assistant";
     return who + ": " + m.text;
   }).join("\n");
 }
@@ -223,7 +223,7 @@ async function notify(subject, text) {
       await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject, from_name: "OPD Assistant \u2014 Dr. Bedi", message: text }),
+        body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject, from_name: "OPD Assistant — Dr. Bedi", message: text }),
       });
     } else if (NOTIFY_WEBHOOK_URL) {
       await fetch(NOTIFY_WEBHOOK_URL, {
@@ -247,9 +247,9 @@ async function emailTo(toEmail, subject, text) {
 }
 function emailLead(s, lead, type) {
   if (!NOTIFY_ON) return;
-  const label = type === "Callback" ? { e: "\ud83d\udcde New callback \u2014 ", w: "callback request" }
-              : type === "Enquiry" ? { e: "\u2709\ufe0f New enquiry \u2014 ", w: "enquiry" }
-              : { e: "\ud83d\udcc5 New booking \u2014 ", w: "booking" };
+  const label = type === "Callback" ? { e: "📞 New callback — ", w: "callback request" }
+              : type === "Enquiry" ? { e: "✉️ New enquiry — ", w: "enquiry" }
+              : { e: "📅 New booking — ", w: "booking" };
   const subject = label.e + lead.name;
   const body =
     "New " + label.w + " from the website assistant:\n\n" +
@@ -273,7 +273,7 @@ function sweepIdle() {
     if (now - s.lastActivity < cutoff) continue;                     
     if (!s.messages.slice(emailed).some(m => m.role === "user")) { s.emailedCount = s.messages.length; changed = true; continue; }
     s.emailedCount = s.messages.length; changed = true;
-    notify("\ud83d\udcac Chat transcript \u2014 visitor " + id.slice(-4), transcriptText(s) + (s.leadEmailed ? "" : "\n\n(No booking was made in this chat.)"));
+    notify("💬 Chat transcript — visitor " + id.slice(-4), transcriptText(s) + (s.leadEmailed ? "" : "\n\n(No booking was made in this chat.)"));
   }
   if (changed) save();
 }
@@ -288,6 +288,12 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.end();
   next();
 });
+
+// Explicit Service Worker route mapping
+app.get('/sw.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
 const auth = (req, res, next) => req.get("x-admin-token") === ADMIN_TOKEN ? next() : res.status(401).json({ error: "unauthorized" });
 
 app.post("/api/chat", async (req, res) => {
@@ -310,9 +316,9 @@ app.post("/api/chat", async (req, res) => {
   sweepIdle();
   
   if (s.skipNextPush) { s.skipNextPush = false; }
-  else pushNotify(s.visitorName ? "\ud83d\udcac " + s.visitorName : "\ud83d\udcac New website message",
-             message ? String(message).slice(0, 140) : "\ud83d\udcce Sent a file",
-             "bedi-msg-" + s.id);
+  else pushNotify(s.visitorName ? "💬 " + s.visitorName : "💬 New website message",
+              message ? String(message).slice(0, 140) : "📎 Sent a file",
+              "bedi-msg-" + s.id);
   maybeResume(s);
   if (s.mode === "human") { save(); return res.json({ reply: null, queued: true, mode: "human" }); }
   if (!AI_READY) { save(); return res.json({ reply: "Please call us on 72728 72728.", chips: [], mode: "ai" }); }
@@ -333,10 +339,10 @@ app.post("/api/chat", async (req, res) => {
         if (!dup) {
           const service = out.lead?.service || "General enquiry";
           const when = type === "Callback" ? "Callback requested" : (out.lead?.when || "Flexible");
-          const patientType = type === "Callback" ? "\u2014" : (out.lead?.patientType || "New patient");
+          const patientType = type === "Callback" ? "—" : (out.lead?.patientType || "New patient");
           db.leads.unshift({ id: "BEDI-" + Date.now().toString().slice(-6), sessionId, type, name, phone, email, service, when, patientType, status: "New", createdAt: Date.now() });
           emailLead(s, { name, phone, email, service, when, patientType }, type);
-          pushNotify(type === "Callback" ? "New callback \ud83d\udcde" : "New booking \ud83d\udcc5", name + (out.lead?.service ? " \u00b7 " + out.lead.service : ""), "bedi-lead");
+          pushNotify(type === "Callback" ? "New callback 📞" : "New booking 📅", name + (out.lead?.service ? " · " + out.lead.service : ""), "bedi-lead");
         }
       }
     }
@@ -349,9 +355,9 @@ app.post("/api/chat", async (req, res) => {
     const replyMentionsBooking = /\bbook\b|\bbooking\b|\bappointment\b|book you in/i.test(replyText);
 
     if (callIntent) {
-      resp.cta = { label: "\ud83d\udcde Call 72728 72728", url: "tel:7272872728" };
+      resp.cta = { label: "📞 Call 72728 72728", url: "tel:7272872728" };
     } else if (out.action === "book" || out.action === "callback" || bookingIntent || replyPromisesButton || replyMentionsBooking) {
-      resp.cta = { label: "\ud83d\udcc5 Book OPD Consultation", url: BOOKING_URL };
+      resp.cta = { label: "📅 Book OPD Consultation", url: BOOKING_URL };
     }
     res.json(resp);
   } catch (e) {
@@ -377,7 +383,7 @@ app.post("/api/lead", (req, res) => {
     if (!dup) {
       db.leads.unshift({ id: "BEDI-" + Date.now().toString().slice(-6), sessionId: "landing", type: "Booking", name, phone, email, service, when, patientType: "New patient", status: "New", source, createdAt: Date.now() });
       try { emailLead({ contact: { name, phone, email } }, { name, phone, email, service, when, patientType: "New patient" }, "Booking"); } catch (e) {}
-      pushNotify("New booking \ud83d\udcc5", name + " \u00b7 " + service + " (Ad)", "bedi-lead");
+      pushNotify("New booking 📅", name + " · " + service + " (Ad)", "bedi-lead");
       save();
     }
     res.json({ ok: true });
@@ -531,7 +537,7 @@ app.post("/api/admin/review-request", auth, async (req, res) => {
     "Thanks so much,\nDr. Rajeev Bedi's Clinic\n72728 72728";
   const r = await emailTo(email, subject, body);
   if (!r.ok) {
-    return res.status(400).json({ error: "Couldn't send the email \u2014 please try again." });
+    return res.status(400).json({ error: "Couldn't send the email — please try again." });
   }
   db.reviewRequests.unshift({ name, email, phone, ts: Date.now() });
   if (phone) db.contactMeta[phone] = Object.assign({}, db.contactMeta[phone], { reviewRequestedAt: Date.now() });
@@ -547,7 +553,7 @@ app.post("/api/push/subscribe", auth, (req, res) => {
   res.json({ ok: true });
 });
 app.post("/api/push/test", auth, async (req, res) => {
-  await pushNotify("Test alert \ud83d\udd14", "Push notifications are working — you'll be alerted when a chat starts.", "bedi-test");
+  await pushNotify("Test alert 🔔", "Push notifications are working — you'll be alerted when a chat starts.", "bedi-test");
   res.json({ ok: true, subs: db.pushSubs.length });
 });
 
@@ -571,12 +577,12 @@ app.post(["/api/start", "/api/register"], (req, res) => {
     db.leads.unshift({
       id: "BEDI-" + Date.now().toString().slice(-6), sessionId, type: "Enquiry",
       name, phone, email, service: message ? message.slice(0, 200) : "Website enquiry",
-      when: "\u2014", patientType: "\u2014", status: "New", createdAt: Date.now(),
+      when: "—", patientType: "—", status: "New", createdAt: Date.now(),
     });
     emailLead(s, { name, phone, email, service: message ? message.slice(0, 200) : "Website enquiry" }, "Enquiry");
   }
   s.skipNextPush = true;   
-  pushNotify("\ud83d\udcac New enquiry \u2014 " + name, message ? message.slice(0, 140) : "started a chat", "bedi-msg-" + s.id);
+  pushNotify("💬 New enquiry — " + name, message ? message.slice(0, 140) : "started a chat", "bedi-msg-" + s.id);
   save();
   res.json({ ok: true });
 });
@@ -603,7 +609,7 @@ app.post("/api/book", (req, res) => {
     s.messages.push({ role: "user", text: "[Sent details via the website]", ts: Date.now() });
   }
   emailLead(s, { name, phone, email: email || "", service: service || "General enquiry", when: when || "Flexible", patientType: patientType || "New patient" }, "Booking");
-  pushNotify("New booking \ud83d\udcc5", name + (service ? " \u00b7 " + service : ""), "bedi-lead");
+  pushNotify("New booking 📅", name + (service ? " · " + service : ""), "bedi-lead");
   save();
   res.json({ ok: true });
 });
@@ -613,6 +619,6 @@ app.get("/admin", (_req, res) => res.sendFile(path.join(__dirname, "public", "ad
 
 app.listen(PORT, () => {
   console.log(`\n  Dr. Bedi Chatbot running on http://localhost:${PORT}`);
-  console.log(`  Staff inbox:  http://localhost:${PORT}/admin   (token: ${ADMIN_TOKEN})`);
-  if (!AI_READY) console.log("  ⚠  No AI key set — add GEMINI_API_KEY (and/or GROQ_API_KEY) to .env\n");
+  console.log(`  Staff inbox:   http://localhost:${PORT}/admin    (token: ${ADMIN_TOKEN})`);
+  if (!AI_READY) console.log("  ⚠️  No AI key set — add GEMINI_API_KEY (and/or GROQ_API_KEY) to .env\n");
 });
