@@ -1,6 +1,6 @@
 /* Dr. Rajeev Bedi OPD Chat Widget — Full Screen Interface */
 (function () {
-  var API = "http://ac0skju2cr649vl20bucu5tv.187.77.125.233.sslip.io";
+  var API = "https://ac0skju2cr649vl20bucu5tv.187.77.125.233.sslip.io";
   var SID = localStorage.getItem("bedi_sid");
   if (!SID) { SID = "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem("bedi_sid", SID); }
   var LOGKEY = "bedi_log_" + SID;
