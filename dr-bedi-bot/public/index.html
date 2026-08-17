@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Best Oncologist in Chandigarh & Mohali | Dr. Rajeev Bedi</title>
-<meta name="description" content="Consult Dr. Rajeev Bedi, Director at Fortis Cancer Institute. Top cancer specialist offering cancer immunology immunotherapy, targeted therapy, and stage 4 cancer treatment." />
+<meta name="description" content="Consult Dr. Rajeev Bedi, a leading medical oncologist in Chandigarh. Expert cancer specialist in Mohali offering cancer immunology immunotherapy and targeted therapy." />
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 <!-- Load the Chatbot Widget -->
-<script src="/widget.js" defer></script>
+<script src="/widget-v2.js" defer></script>
 
 <style>
   :root {
@@ -179,13 +179,17 @@
   .sec-head p { color: var(--teal-soft); font-size: 17px; }
   .section-dark .sec-head p { color: rgba(255,255,255,.82); }
 
+  /* Generic Content Layout */
+  .text-content { max-width: 800px; margin: 0 auto; text-align: center; }
+  .text-content p { margin-bottom: 20px; color: var(--ink-muted); font-size: 17px; line-height: 1.7; }
+
   /* Grid Layouts */
   .provides { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .prov-item { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 20px; }
   .prov-item .pi-ic { width: 44px; height: 44px; border-radius: 11px; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; flex: none; color: #FFD9B8; }
   .prov-item .pi-ic svg { width: 24px; height: 24px; stroke-width: 2; }
   .prov-item h3 { font-size: 17px; font-family: 'Inter'; font-weight: 600; margin-bottom: 4px; color: #fff; }
-  .prov-item p { font-size: 14.5px; color: rgba(255,255,255,.75); }
+  .prov-item p { font-size: 14.5px; color: rgba(255,255,255,.75); line-height: 1.5; }
 
   /* Offer Band */
   .offer { background: var(--teal); color: #fff; border-radius: var(--radius-lg); padding: 40px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; box-shadow: var(--shadow-md); }
@@ -198,7 +202,7 @@
   .tcard .tc-ic { width: 50px; height: 50px; border-radius: 12px; background: #FFF3EB; display: flex; align-items: center; justify-content: center; color: var(--orange-deep); margin-bottom: 16px; }
   .tcard .tc-ic svg { width: 26px; height: 26px; stroke-width: 1.8; }
   .tcard h3 { font-size: 20px; margin-bottom: 8px; }
-  .tcard p { color: var(--ink-muted); font-size: 15px; flex: 1; margin-bottom: 0; }
+  .tcard p { color: var(--ink-muted); font-size: 15px; flex: 1; margin-bottom: 0; line-height: 1.5; }
 
   /* Footer */
   footer { background: var(--teal); color: rgba(255,255,255,.8); padding: 48px 0 30px; border-top: 1px solid rgba(255,255,255,.1); }
@@ -206,8 +210,11 @@
   footer h4 { color: #fff; font-family: 'Inter'; font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 14px; }
   footer .f-row { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 12px; font-size: 14.5px; line-height: 1.5; color: rgba(255,255,255,.82); }
   footer .f-row .ic { color: var(--orange); margin-top: 2px; }
-  .foot-bottom { border-top: 1px solid rgba(255,255,255,.14); margin-top: 36px; padding-top: 20px; font-size: 13px; color: rgba(255,255,255,.55); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  .seo-footer { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 20px; line-height: 1.6; }
+  
+  .seo-footer { font-size: 13.5px; color: rgba(255,255,255,.45); margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); line-height: 1.6; }
+  .seo-footer strong { color: rgba(255,255,255,.65); font-weight: 600; }
+  
+  .foot-bottom { border-top: 1px solid rgba(255,255,255,.14); margin-top: 20px; padding-top: 20px; font-size: 13px; color: rgba(255,255,255,.55); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
   /* Sticky Mobile Call Bar */
   .mobile-sticky-bar {
@@ -216,20 +223,6 @@
     box-shadow: 0 -4px 16px rgba(0,0,0,.08); z-index: 999;
   }
   .mobile-sticky-bar .btn { width: 100%; font-size: 16px; padding: 13px; }
-
-  /* Chat Widget Full Screen Override for Mobile */
-  @media (max-width: 760px) {
-    #bediw #bedi-panel {
-      bottom: 0 !important;
-      right: 0 !important;
-      width: 100vw !important;
-      max-width: 100vw !important;
-      height: 100vh !important;
-      max-height: 100vh !important;
-      border-radius: 0 !important;
-      z-index: 2147483005 !important;
-    }
-  }
 
   /* Responsive Adjustments */
   @media (max-width: 900px) {
@@ -286,20 +279,20 @@
         <span class="swash">Oncologist<svg viewBox="0 0 220 12" preserveAspectRatio="none"><path d="M2 8c50-6 150-6 216-3"/></svg></span>
         in Tricity.</h1>
         
-      <p class="hero-sub">Dr. Rajeev Bedi, Director at Fortis Cancer Institute, is a leading cancer specialist offering precision oncology, cancer immunology immunotherapy, targeted therapy, and stage 4 cancer treatment.</p>
+      <p class="hero-sub">Dr. Rajeev Bedi is a trusted and highly experienced medical oncologist offering comprehensive cancer care, cancer immunology immunotherapy, and advanced targeted treatments for all stages.</p>
 
       <ul class="ticks">
         <li>
           <span class="tick-ic"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
-          <strong>Director of Medical Oncology</strong> at Fortis Mohali
+          <strong>Top Rated Medical Care:</strong> Over 30 years of awarded clinical experience.
         </li>
         <li>
           <span class="tick-ic"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
-          <strong>Tumor Treatment Without Surgery:</strong> Advanced targeted & CAR T-cell therapy
+          <strong>Advanced Tumor Management:</strong> Expertise in systemic therapy over immediate surgery.
         </li>
         <li>
           <span class="tick-ic"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
-          <strong>Same-Day Appointments</strong> for Second Opinions
+          <strong>Priority Consultations:</strong> Fast access for critical second opinions.
         </li>
       </ul>
     </div>
@@ -342,8 +335,8 @@
             <button class="treat-btn" role="radio" data-key="Any Other Part Cancer Consultation" aria-checked="false">
               <span class="t-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
               <span class="t-txt">
-                <span class="t-name">Any Other Part Cancer</span>
-                <span class="t-desc">Prostate, skin, oral, GI, blood cancer, or second opinion</span>
+                <span class="t-name">Other Cancers / Second Opinion</span>
+                <span class="t-desc">Prostate, GI, blood disorders, or reviewing existing reports</span>
               </span>
               <span class="t-check"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
             </button>
@@ -399,37 +392,37 @@
 <section class="section section-dark">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker">Clear, Medical Guidance</span>
+      <span class="kicker">Comprehensive Diagnosis</span>
       <h2>What happens during your OPD visit</h2>
-      <p>Direct consultation with Dr. Rajeev Bedi at Fortis Cancer Institute — no junior doctor handoffs.</p>
+      <p>Direct consultation with Dr. Rajeev Bedi at the Fortis cancer center — ensuring clarity and expert medical guidance at every step.</p>
     </div>
     <div class="provides">
       <div class="prov-item">
         <span class="pi-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
         <div>
           <h3>In-Depth Report Evaluation</h3>
-          <p>Thorough review of existing biopsy, CT, or PET-CT reports to verify accurate staging before planning treatment.</p>
+          <p>We thoroughly review your existing biopsy and PET-CT reports. Accurate clinical staging is critical before planning any systemic cancer care treatment.</p>
         </div>
       </div>
       <div class="prov-item">
         <span class="pi-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
         <div>
-          <h3>Personalized Treatment Protocols</h3>
-          <p>Discussion on targeted therapies, day care chemotherapy cycles, or t-cell immunotherapy options suited for the patient.</p>
+          <h3>Personalized Treatment Planning</h3>
+          <p>We discuss the feasibility of advanced targeted therapies, specific day-care chemotherapy cycles, and immunological treatments tailored to your condition.</p>
         </div>
       </div>
       <div class="prov-item">
         <span class="pi-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
         <div>
-          <h3>Side-Effect & Palliative Management</h3>
-          <p>Clear protocols by a dedicated palliative care oncologist to minimize fatigue and maintain quality of life.</p>
+          <h3>Quality of Life & Management</h3>
+          <p>Our comprehensive cancer care includes dedicated protocols for side-effect management, minimizing fatigue, and maintaining your overall well-being.</p>
         </div>
       </div>
       <div class="prov-item">
         <span class="pi-ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>
         <div>
-          <h3>Second Opinions</h3>
-          <p>Unbiased, logical assessment of suggested surgeries, hematology oncology, or systemic therapies from other facilities.</p>
+          <h3>Honest Second Opinions</h3>
+          <p>We provide unbiased assessments of suggested surgeries and therapies. If you are searching for the right path forward, we offer the clarity you need.</p>
         </div>
       </div>
     </div>
@@ -440,31 +433,44 @@
 <section class="section section-alt">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker">Core Oncology Specialties</span>
+      <span class="kicker">Core Clinical Specialties</span>
       <h2>Advanced Medical Oncology Services</h2>
-      <p>Providing the highest standard of cancer care and precision oncology in Tricity.</p>
+      <p>Providing the highest standard of precision oncology and hematology from an expert cancer specialist in Mohali.</p>
     </div>
     <div class="tcards">
 
       <div class="tcard">
         <div class="tc-ic"><svg viewBox="0 0 24 24"><path d="M12 21C7 17 4 14 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5C20 14 17 17 12 21Z"/></svg></div>
-        <h3>Prostate & Tumor Specialist</h3>
-        <p>Expert medical management for prostate cancer, sarcomas, and solid tumors without immediate reliance on invasive surgery.</p>
+        <h3>Solid Tumors & Hematology</h3>
+        <p>Expert medical management for prostate cancer, lung cancer, sarcomas, and complex blood disorders, providing highly effective alternatives to immediate invasive surgery.</p>
       </div>
 
       <div class="tcard">
         <div class="tc-ic"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 21l3.39-.89C9.28 20.65 10.6 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg></div>
         <h3>Targeted & Chemo Therapy</h3>
-        <p>Specialized day care chemotherapy and targeted therapy for lung, breast, cervical, and ovarian cancer treatments.</p>
+        <p>Specialized day-care chemotherapy and targeted molecular therapies customized to attack cancer cells aggressively while preserving healthy tissues.</p>
       </div>
 
       <div class="tcard">
         <div class="tc-ic"><svg viewBox="0 0 24 24"><path d="M19.48 13.03A4 4 0 0 1 16 19h-4a4 4 0 0 1-3.48-5.97"/><path d="M12 3v18"/><path d="M8 7l4-4 4 4"/></svg></div>
         <h3>Immunotherapy Center</h3>
-        <p>State-of-the-art cancer immunology immunotherapy (including CAR T-cell therapy) to safely train the immune system to attack cancer.</p>
+        <p>State-of-the-art immunological treatments designed to safely stimulate and train the patient's own immune system to recognize and fight cancer cells.</p>
       </div>
 
     </div>
+  </div>
+</section>
+
+<!-- DOCTOR / GENERIC TRUST SECTION -->
+<section class="section">
+  <div class="wrap text-content">
+    <div class="sec-head" style="margin-bottom: 24px;">
+      <span class="kicker">Expert Medical Guidance</span>
+      <h2>Compassionate Care You Can Trust</h2>
+    </div>
+    <p>A cancer diagnosis is an overwhelming journey for any family. Finding the right doctor to trust with your treatment plan is the most critical first step. At our clinic within Fortis Cancer Hospital, Dr. Rajeev Bedi brings decades of awarded experience to provide you with absolute clarity, hope, and an actionable path forward.</p>
+    
+    <p>Whether you are searching for a highly-rated medical oncologist in Chandigarh for a primary diagnosis, or simply need an expert second opinion to ensure your current treatment is correct, our approach remains entirely patient-focused. We take the time to demystify complex medical reports and explain every step of the process transparently, ensuring that every family feels supported and confident in their care.</p>
   </div>
 </section>
 
@@ -474,9 +480,9 @@
     <div class="offer">
       <div>
         <h2>Looking for the Best Cancer Hospital in Chandigarh?</h2>
-        <p>Do not delay critical medical decisions. Consult the Director of Oncology at Fortis Cancer Institute Mohali & Chandigarh today.</p>
+        <p>Do not delay critical medical decisions. Schedule a visit at our clinic today to start your personalized recovery plan.</p>
       </div>
-      <a href="#book" class="btn btn-primary">Book Appointment
+      <a href="#book" class="btn btn-primary" style="background:#fff; color:var(--teal);">Book Appointment
         <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
   </div>
@@ -491,7 +497,7 @@
           <span class="doc-name" style="color:#fff;">Dr. Rajeev Bedi</span>
           <span class="doc-title" style="color:rgba(255,255,255,.7);">Director — Medical Oncology</span>
         </div>
-        <p style="font-size:14px; color:rgba(255,255,255,.65);">The leading cancer specialist doctor and hematologist providing evidence-based precision oncology at Fortis Cancer Institute.</p>
+        <p style="font-size:14px; color:rgba(255,255,255,.65);">The leading cancer specialist providing evidence-based precision oncology at Fortis Cancer Institute.</p>
       </div>
       <div>
         <h4>OPD Helpline</h4>
@@ -509,8 +515,9 @@
       </div>
     </div>
     
+    <!-- Natural SEO Text Block -->
     <div class="seo-footer">
-      <strong>Specialized Treatments & Searches:</strong> Best medical oncologist in Chandigarh, tumor treatment without surgery, best prostate cancer doctors, skin cancer doctor near me, cancer immunology immunotherapy, day care chemotherapy near me, targeted therapy specialist, top 10 oncologist in Chandigarh, medical oncology clinic near me, blood dr near me, metastatic cancer treatment, and online oncologist consultation.
+      <strong>Specialized Treatments & Regional Focus:</strong> Our clinic is dedicated to providing comprehensive cancer care for patients across the region. If you are searching for the best oncologist in Punjab or exploring cancer treatment centers near me, Dr. Bedi offers unparalleled expertise in Tricity. As a top 10 oncologist in Chandigarh and a trusted hematology specialist, his practice covers advanced cancer immunology immunotherapy and day-care chemotherapy. We frequently assist families seeking an experienced cancer ka doctor for reliable cancer ka ilaj. Operating from the leading cancer hospital in Mohali, we strive to be the most trusted choice for patients seeking an expert oncologist near me for both primary treatments and critical second opinions.
     </div>
 
     <div class="foot-bottom">
