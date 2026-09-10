@@ -15,7 +15,6 @@ const GROQ_KEY = process.env.GROQ_API_KEY || "";
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const AI_READY = GEMINI_KEYS.length > 0 || !!GROQ_KEY;
 
-// FIX: Hardcoded the Fortis link directly into the backend so it ignores empty .env files
 const BOOKING_URL = process.env.BOOKING_URL || "https://www.fortishealthcare.com/doctors/dr-rajeev-bedi-4600"; 
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "changeme";
