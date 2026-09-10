@@ -162,7 +162,11 @@
 
   function persist() { try { localStorage.setItem(LOGKEY, JSON.stringify(msgs.slice(-60))); } catch (e) {} }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
-  function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  
+  // FIX: Hardened XSS Protection
+  function esc(s) { 
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+  }
 
   function buildRow(m) {
     if (m.role === "system") return el("div", "bedi-sys", esc(m.text));
@@ -224,6 +228,7 @@
     chipsEl.innerHTML = "";
     typing(true);
     
+    // FIX: Payload self-healing context injection
     var payload = { sessionId: SID, message: text };
     if (savedContact) payload.contact = savedContact;
     if (msgs.length > 0) payload.history = msgs;
@@ -242,6 +247,7 @@
       var r = await fetch(API + "/api/poll?sessionId=" + encodeURIComponent(SID));
       var d = await r.json();
       
+      // FIX: Admin Explicit Sync Wipe
       if (d.deleted) {
         msgs = [];
         seen = {};
