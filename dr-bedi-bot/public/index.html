@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-<!-- Load the Chatbot Widget -->
-<script src="/widget-v2.js" defer></script>
+<!-- Load the Chatbot Widget (Corrected File Name) -->
+<script src="/widget.js" defer></script>
 
 <style>
   :root {
@@ -482,8 +482,10 @@
         <h2>Looking for the Best Cancer Hospital in Chandigarh?</h2>
         <p>Do not delay critical medical decisions. Schedule a visit at our clinic today to start your personalized recovery plan.</p>
       </div>
-      <a href="#book" class="btn btn-primary" style="background:#fff; color:var(--teal);">Book Appointment
-        <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a href="https://www.fortishealthcare.com/doctors/dr-rajeev-bedi-4600" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background:#fff; color:var(--teal);">
+        Book via Fortis Hospital
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </div>
 </section>
@@ -578,44 +580,18 @@
     submitBtn.innerHTML = 'Connecting to Assistant... <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     submitBtn.disabled = true;
 
-    // 1. Programmatically open the Chat Widget
-    const widgetBtn = document.getElementById("bedi-btn");
-    const widgetPanel = document.getElementById("bedi-panel");
+    let compiledMessage = `Hello, I need a consultation regarding ${treatment}.`;
+    if (query) { compiledMessage += ` Additional details: ${query}`; }
     
-    if(widgetBtn && widgetPanel) {
-      if(!widgetPanel.classList.contains("on")) {
-          widgetBtn.click();
-      }
-    } else {
-      alert("The assistant is still loading. Please wait a moment and try again.");
+    // Clean, immediate handoff to the global widget function
+    if (typeof window.bediStartChat === 'function') {
+      window.bediStartChat(name, mobile, "", compiledMessage);
+      submitBtn.innerHTML = 'Submit & Start Chat Assistant <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
       submitBtn.disabled = false;
-      return;
+    } else {
+      alert("The assistant is still loading or could not be found. Please wait a moment and try again.");
+      submitBtn.disabled = false;
     }
-
-    // 2. Pass the data into the widget's internal form and submit it automatically
-    setTimeout(function() {
-      const wName = document.getElementById("in-name");
-      const wPhone = document.getElementById("in-phone");
-      const wMsg = document.getElementById("in-msg");
-      const wSend = document.getElementById("in-send");
-
-      if(wName && wPhone && wMsg && wSend) {
-          wName.value = name;
-          wPhone.value = mobile;
-          
-          let compiledMessage = `Hello, I need a consultation regarding ${treatment}.`;
-          if (query) { compiledMessage += ` Additional details: ${query}`; }
-          
-          wMsg.value = compiledMessage;
-          
-          // Trigger the chat
-          wSend.click(); 
-          
-          // Reset the landing page button in the background
-          submitBtn.innerHTML = 'Submit & Start Chat Assistant <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-          submitBtn.disabled = false;
-      }
-    }, 250); // Small delay ensures the widget DOM is fully rendered before injecting data
   });
 
   /* Auto-update Year */
