@@ -17,9 +17,11 @@ self.addEventListener('push', function(event) {
 
     var title = data.title || "Dr. Bedi OPD";
     var options = {
-        body: data.body || "New client or chat update received.",
-        icon: data.icon || "https://drrajeevbedi.com/booking/favicon.ico",
-        data: data.url || "https://drrajeevbedi.com/booking/"
+        body: data.body || "New patient or chat update received.",
+        icon: "/apple-touch-icon.png", 
+        data: data.url || "/admin", 
+        tag: data.tag || "bedi-alert",
+        renotify: true
     };
 
     event.waitUntil(
@@ -29,7 +31,21 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
+    const targetUrl = event.notification.data || '/admin';
+
     event.waitUntil(
-        clients.openWindow(event.notification.data || '/')
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            // If the admin inbox tab is already open, focus it
+            for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if (client.url.includes('/admin') && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // Otherwise, open a new tab to the inbox
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl);
+            }
+        })
     );
 });
